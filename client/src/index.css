@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/* Theme CSS variables */
+:root {
+  --bg-main: #fff;
+  --bg-surface: #f9fafb;
+  --text-main: #18181b;
+  --text-muted: #6b7280;
+  --accent: #ef4444;
+  --nav-bg: rgba(255,255,255,0.8);
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.9%;
+  --muted: 0 0% 96.1%;
+  --border: 0 0% 89.8%;
+}
+
+.dark {
+  --bg-main: #18181b;
+  --bg-surface: #23232b;
+  --text-main: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --accent: #ef4444;
+  --nav-bg: rgba(24,24,27,0.95);
+  --background: 0 0% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 0 0% 14.9%;
+  --border: 0 0% 14.9%;
+}
+
+body, html {
+    background: var(--bg-main);
+    color: var(--text-main);
+    transition: background 0.3s, color 0.3s;
+    font-family: var(--font-montserrat), sans-serif;
+}
+
+header {
+  background: var(--nav-bg);
+  transition: background 0.3s;
+}
+
+@theme{
+    --font-montserrat:"Montserrat", serif;
+    --color-primary:#C62E2E;
+    --color-secondary:#F9F9F9;
+    --color-calm:#0D92F4;
+}
+
+/* Optional: surface backgrounds for cards, panels, etc. */
+.bg-surface {
+  background: var(--bg-surface);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+::-webkit-scrollbar{
+    display:none
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --muted: 0 0% 96.1%;
+    --border: 0 0% 89.8%;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --border: 0 0% 14.9%;
+  }
+}
+
+.blood-cell-shape {
+  mask-image: radial-gradient(circle at center, transparent 15%, black 25%, black 75%, transparent 85%);
+  -webkit-mask-image: radial-gradient(circle at center, transparent 15%, black 25%, black 75%, transparent 85%);
+}
+
+.hemoglobin-particle {
+  @apply absolute rounded-full blur-[0.5px];
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  will-change: transform, opacity;
+}
+
+.hemoglobin-particle:nth-child(1) { left: 20%; top: 30%; }
+.hemoglobin-particle:nth-child(2) { left: 65%; top: 45%; }
+.hemoglobin-particle:nth-child(3) { left: 45%; top: 60%; }
+.hemoglobin-particle:nth-child(4) { left: 75%; top: 25%; }
+.hemoglobin-particle:nth-child(5) { left: 35%; top: 75%; }
+
+/* Blood filter for realistic liquid effect */
+@layer components {
+  .blood-filter {
+    filter: url('#blood-filter');
+  }
+}
