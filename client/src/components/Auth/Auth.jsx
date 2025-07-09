@@ -42,6 +42,8 @@ function Auth() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [districts, setDistricts] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [city, setCity] = useState("");
 
   const [passwordChecks, setPasswordChecks] = useState({
     length: false,
@@ -141,6 +143,12 @@ function Auth() {
       // If we have districts for the selected state, use them
       if (staticDistricts[selectedState]) {
         setDistricts(staticDistricts[selectedState]);
+        // If the array is of objects, extract city names; if strings, use as is
+        if (typeof staticDistricts[selectedState][0] === 'object') {
+          setCities(staticDistricts[selectedState].map(d => d.name));
+        } else {
+          setCities(staticDistricts[selectedState]);
+        }
       } else {
         // For states without predefined districts, set generic districts with IDs
         setDistricts([
@@ -151,8 +159,10 @@ function Auth() {
           { id: "GEN-5", name: "East District" },
           { id: "GEN-6", name: "West District" }
         ]);
+        setCities(["District Headquarters", "Central District", "North District", "South District", "East District", "West District"]);
       }
       setDistrict(""); // Reset selected district
+      setCity(""); // Reset selected city
     } catch (error) {
       console.error("Error setting districts:", error);
       Toast.fire({
@@ -165,6 +175,7 @@ function Auth() {
         { id: "FALL-2", name: "Central District" },
         { id: "FALL-3", name: "Main District" }
       ]); // Fallback districts with IDs
+      setCities(["District Headquarters", "Central District", "Main District"]);
     }
   };
 
@@ -248,7 +259,7 @@ function Auth() {
     };
 
     try {
-      const response = await fetch(`${BASE_URL}/signup/patient`, {
+      const response = await fetch(`${BASE_URL}/auth/signup/patient`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -359,7 +370,7 @@ function Auth() {
     };
 
     try {
-      const response = await fetch(`${BASE_URL}/signup/donor`, {
+      const response = await fetch(`${BASE_URL}/auth/signup/donor`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -471,11 +482,14 @@ function Auth() {
       phoneNumber: contact,
       licenseNumber: license,
       state: state,
+      city: city,
       district: district
     };
 
+    console.log('Hospital signup data:', hospitalData);
+
     try {
-      const response = await fetch(`${BASE_URL}/signup/hospital`, {
+      const response = await fetch(`${BASE_URL}/auth/signup/hospital`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -588,6 +602,7 @@ function Auth() {
     setState("");
     setLicense("");
     setDistrict("");
+    setCity("");
     // Only reset age if not hospital type
     if (userType !== "Hospital") {
       setAge("");
@@ -667,6 +682,22 @@ function Auth() {
                     className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                   />
                 </div>
+                {/* City (only for Hospital) */}
+                {userType === "Hospital" && (
+                  <div className="relative">
+                    <select
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      required
+                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                    >
+                      <option value="">Select City</option>
+                      {cities.map((c, idx) => (
+                        <option key={c + idx} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Age - Only for Patient and Donor */}
                 {(userType === "Patient" || userType === "Donor") && (
@@ -777,24 +808,39 @@ function Auth() {
                         className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                       />
                     </div>
-                    <div className="w-full">
+                    {/* State (for all types) */}
+                    <div className="relative">
                       <select
-                        className="w-full px-3 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-gray-600 focus:border-blue-500 focus:outline-none text-white placeholder-gray-300"
                         value={state}
                         onChange={(e) => {
                           setState(e.target.value);
                           fetchDistricts(e.target.value);
                         }}
                         required
+                        className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                       >
                         <option value="">Select State</option>
-                        {indianStates.map((stateName) => (
-                          <option key={stateName} value={stateName}>
-                            {stateName}
-                          </option>
+                        {indianStates.map((s) => (
+                          <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
                     </div>
+                    {/* City (only for Hospital) */}
+                    {userType === "Hospital" && (
+                      <div className="relative">
+                        <select
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          required
+                          className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                        >
+                          <option value="">Select City</option>
+                          {cities.map((c, idx) => (
+                            <option key={c + idx} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
                     <div className="w-full">
                       <select
                         className="w-full px-3 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-gray-600 focus:border-blue-500 focus:outline-none text-white placeholder-gray-300"
@@ -803,9 +849,9 @@ function Auth() {
                         required
                       >
                         <option value="">Select District</option>
-                        {districts.map((dist) => (
-                          <option key={dist.id} value={dist.name}>
-                            {dist.name}
+                        {districts.map((dist, idx) => (
+                          <option key={dist.id || dist + idx} value={dist.name || dist}>
+                            {dist.name || dist}
                           </option>
                         ))}
                       </select>
