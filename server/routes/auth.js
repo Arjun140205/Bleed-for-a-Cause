@@ -71,6 +71,7 @@ authRouter.post("/signup/:userType", async (req, res) => {
         phoneNumber,
         licenseNumber,
         state,
+        city,
         district,
       } = req.body;
 
@@ -87,6 +88,7 @@ authRouter.post("/signup/:userType", async (req, res) => {
         phoneNumber,
         licenseNumber,
         state,
+        city,
         district,
       });
 
