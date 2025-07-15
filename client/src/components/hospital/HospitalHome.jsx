@@ -147,116 +147,116 @@ const HospitalHome = () => {
             </svg>
             <div className="relative z-10 flex-1">
               <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-400 to-red-700 drop-shadow-lg mb-2 text-center md:text-left">
-                Blood Management Dashboard
-              </h1>
+            Blood Management Dashboard
+          </h1>
               <div className="flex items-center gap-3 text-base justify-center md:justify-start">
                 <span className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg border-2 border-white" />
                 <span className="px-3 py-1 bg-white/70 text-green-700 font-semibold rounded-full shadow border border-green-200 animate-fade-in">
-                  Real-time data updates
+            Real-time data updates
                 </span>
-              </div>
-            </div>
+          </div>
+        </div>
             <a href="/hospital/requestmanagement" className="relative z-10 mt-6 md:mt-0">
               <button className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:scale-105 transition-transform border-2 border-orange-600/70">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 17l4 4 4-4m0-5V3m-8 9v6a2 2 0 002 2h4a2 2 0 002-2v-6" /></svg>
                 Request Management
               </button>
-            </a>
-          </header>
+        </a>
+      </header>
           {/* Main dashboard content glassy card */}
           <div className="mb-10 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-            {Object.entries(inventory).map(([type, data]) => (
-              <BloodInventoryCard key={type} type={type} data={data} />
-            ))}
-          </div>
+        {Object.entries(inventory).map(([type, data]) => (
+          <BloodInventoryCard key={type} type={type} data={data} />
+        ))}
+      </div>
           {/* Analytics and alerts glassy card */}
           <div className="mb-10 bg-white/80 rounded-3xl shadow-xl border border-red-100">
             <div className="p-6 border-b border-red-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-2xl font-bold text-gray-900">
-                Blood Analytics
-                <span className="ml-2 text-sm font-normal text-gray-500">
-                  ({timeRange.replace("d", " day").toUpperCase()})
-                </span>
-              </h2>
-              <div className="flex gap-2">
-                <select
-                  className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white"
-                  value={timeRange}
-                  onChange={(e) => setTimeRange(e.target.value)}
-                >
-                  <option value="24h">Last 24h</option>
-                  <option value="7d">Last 7d</option>
-                  <option value="30d">Last 30d</option>
-                </select>
-                <select
-                  className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white"
-                  value={selectedBloodType}
-                  onChange={(e) => setSelectedBloodType(e.target.value)}
-                >
-                  <option value="All">All Types</option>
-                  {Object.keys(inventory).map((type) => (
-                    <option key={type} value={type}>
-                      {type}+
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="p-6 h-fit">
-              <MainGraph timeRange={timeRange} bloodType={selectedBloodType} />
-            </div>
+            Blood Analytics
+            <span className="ml-2 text-sm font-normal text-gray-500">
+              ({timeRange.replace("d", " day").toUpperCase()})
+            </span>
+          </h2>
+          <div className="flex gap-2">
+            <select
+              className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white"
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value)}
+            >
+              <option value="24h">Last 24h</option>
+              <option value="7d">Last 7d</option>
+              <option value="30d">Last 30d</option>
+            </select>
+            <select
+              className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white"
+              value={selectedBloodType}
+              onChange={(e) => setSelectedBloodType(e.target.value)}
+            >
+              <option value="All">All Types</option>
+              {Object.keys(inventory).map((type) => (
+                <option key={type} value={type}>
+                  {type}+
+                </option>
+              ))}
+            </select>
           </div>
+        </div>
+            <div className="p-6 h-fit">
+          <MainGraph timeRange={timeRange} bloodType={selectedBloodType} />
+        </div>
+      </div>
           {/* Shortage predictions and recent donations glassy cards */}
           <div className="grid gap-8 lg:grid-cols-2">
             <div className="bg-white/80 p-6 rounded-2xl shadow-lg border border-red-100">
-              <h3 className="text-lg font-semibold mb-4">Shortage Predictions</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-amber-50 rounded-lg flex items-center gap-4">
-                  <span className="text-2xl">⚠️</span>
-                  <div>
-                    <p className="font-medium text-amber-700">
-                      High Risk of O+ Shortage
-                    </p>
-                    <p className="text-sm text-amber-600">
-                      Predicted 40% demand increase in next 7 days
-                    </p>
-                  </div>
-                </div>
-                <div className="p-4 bg-blue-50 rounded-lg flex items-center gap-4">
-                  <span className="text-2xl">ℹ️</span>
-                  <div>
-                    <p className="font-medium text-blue-700">
-                      Donor Availability Alert
-                    </p>
-                    <p className="text-sm text-blue-600">
-                      12 compatible donors available within 50km radius
-                    </p>
-                  </div>
-                </div>
+          <h3 className="text-lg font-semibold mb-4">Shortage Predictions</h3>
+          <div className="space-y-4">
+            <div className="p-4 bg-amber-50 rounded-lg flex items-center gap-4">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <p className="font-medium text-amber-700">
+                  High Risk of O+ Shortage
+                </p>
+                <p className="text-sm text-amber-600">
+                  Predicted 40% demand increase in next 7 days
+                </p>
               </div>
             </div>
-            <div className="bg-white/80 p-6 rounded-2xl shadow-lg border border-red-100">
-              <h3 className="text-lg font-semibold mb-4">Recent Donations</h3>
-              <div className="space-y-3">
-                {recentDonations.map((donation) => (
-                  <div
-                    key={donation.id}
-                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">{donation.name}</p>
-                      <p className="text-sm text-gray-500">{donation.type}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{donation.units} units</p>
-                      <p className="text-sm text-gray-500">{donation.date}</p>
-                    </div>
-                  </div>
-                ))}
+            <div className="p-4 bg-blue-50 rounded-lg flex items-center gap-4">
+              <span className="text-2xl">ℹ️</span>
+              <div>
+                <p className="font-medium text-blue-700">
+                  Donor Availability Alert
+                </p>
+                <p className="text-sm text-blue-600">
+                  12 compatible donors available within 50km radius
+                </p>
               </div>
             </div>
           </div>
         </div>
+            <div className="bg-white/80 p-6 rounded-2xl shadow-lg border border-red-100">
+          <h3 className="text-lg font-semibold mb-4">Recent Donations</h3>
+          <div className="space-y-3">
+            {recentDonations.map((donation) => (
+              <div
+                key={donation.id}
+                className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
+              >
+                <div>
+                  <p className="font-medium">{donation.name}</p>
+                  <p className="text-sm text-gray-500">{donation.type}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium">{donation.units} units</p>
+                  <p className="text-sm text-gray-500">{donation.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
       </div>
     </>
   );
