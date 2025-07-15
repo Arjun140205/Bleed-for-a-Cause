@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import BASE_URL from "../../apiConfig";
 import { toast } from "react-toastify";
+import ListItem from "../ui/ListItem";
 
 const Requests = () => {
   const navigate = useNavigate();
@@ -179,10 +180,7 @@ const Requests = () => {
         ) : (
           <ul className="space-y-6">
             {activeRequests.map((request, index) => (
-              <li
-                key={index}
-                className="border p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
-              >
+              <ListItem key={index} className="border p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
                 <div className="flex justify-between items-center mb-4">
                   <p className="font-medium text-gray-800">
                     <strong>Blood Type:</strong> {request.bloodType}
@@ -209,7 +207,7 @@ const Requests = () => {
                 >
                   Cancel
                 </button>
-              </li>
+              </ListItem>
             ))}
           </ul>
         )}
