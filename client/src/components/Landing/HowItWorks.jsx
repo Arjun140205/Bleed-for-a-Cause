@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { UserPlus, Heart, Truck } from "lucide-react";
+import Card from "../ui/Card";
 
 const HowItWorks = () => {
   const steps = [
@@ -146,127 +147,16 @@ const HowItWorks = () => {
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                whileHover={{ 
-                  scale: 1.05,
-
-            
-                  z: 25
-                }}
-                className="relative group cursor-pointer"
-                style={{ transformStyle: 'preserve-3d' }}
-              >
-                <div className={`relative p-8 bg-white/90 rounded-3xl border-2 border-gray-200/50 backdrop-blur-xl shadow-xl ${step.shadowColor} ${step.hoverBorder} transition-all duration-300  h-full transform-gpu `}>
-                  
-                  {/* Multi-layered glow effects */}
-                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${step.bgGradient} opacity-0 group-hover:opacity-60 transition-all duration-500`} />
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                  
-                  {/* Animated border shimmer */}
-                  <div className="absolute inset-0 rounded-3xl overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 transform rotate-12" />
-                  </div>
-
-                  {/* Floating particles effect */}
-                  <div className="absolute inset-0 rounded-3xl overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    {[...Array(6)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className="absolute w-2 h-2 bg-white rounded-full"
-                        style={{
-                          left: `${20 + i * 15}%`,
-                          top: `${30 + (i % 2) * 40}%`,
-                        }}
-                        animate={{
-                          y: [-10, -30, -10],
-                          opacity: [0, 1, 0],
-                          scale: [0.5, 1, 0.5],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          delay: i * 0.3,
-                        }}
-                      />
-                    ))}
-                  </div>
-
-                  <div className="relative z-10">
-                    <div className="mb-8 flex justify-center">
-                      <motion.div
-                      
-                        className={`p-6 bg-gradient-to-br ${step.iconBg} rounded-2xl shadow-2xl  transition-all duration-300 hover:scale-105`}
-                        
-                      >
-                        <Icon className="text-4xl text-white  transition-transform duration-200" />
-                      </motion.div>
-                    </div>
-
-                    <motion.h3 
-                      className={`text-2xl font-bold bg-gradient-to-r ${step.color} bg-clip-text text-transparent mb-4 `}
-                      
-                    >
-                      {step.title}
-                    </motion.h3>
-
-                    <motion.p 
-                      className="text-lg text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300"
-                   
-                    >
-                      {step.text}
-                    </motion.p>
-                  </div>
-
-                  {/* Enhanced step number with pulsing animation */}
-                  <motion.div 
-                    className={`absolute -top-6 -right-6 w-16 h-16 bg-gradient-to-br ${step.iconBg} rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-2xl`}
-                    whileHover={{ 
-                      scale: 1.10,
-                      rotate: 360,
-                      
-                    }}
-                    animate={{
-                      boxShadow: [
-                        "0 0 0 0 rgba(239, 68, 68, 0.4)",
-                        "0 0 0 20px rgba(239, 68, 68, 0)",
-                      ],
-                    }}
-                    transition={{
-                      boxShadow: {
-                        duration: 5,
-                        repeat: Infinity,
-                      },
-                      scale: { duration: 0.9 },
-                      rotate: { duration: 0.5 }
-                    }}
-                  >
-                    {index + 1}
-                  </motion.div>
-
-                  {/* Progress indicator dots */}
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                    {[...Array(3)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className={`w-2 h-2 rounded-full ${
-                          i <= index ? 'bg-red-600' : 'bg-gray-500'
-                        }`}
-                        animate={i <= index ? {
-                          scale: [1, 1.2, 1],
-                          opacity: [0.5, 1, 0.5],
-                        } : {}}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          delay: i * 0.2,
-                        }}
-                      />
-                    ))}
-                  </div>
+              <Card key={index} className={`relative group cursor-pointer p-8 bg-white/90 rounded-3xl border-2 border-gray-200/50 backdrop-blur-xl shadow-xl ${step.shadowColor} ${step.hoverBorder} transition-all duration-300  h-full transform-gpu`} style={{ transformStyle: 'preserve-3d' }}>
+                <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${step.bgGradient} opacity-0 group-hover:opacity-60 transition-all duration-500`} />
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                <div className="absolute inset-0 rounded-3xl overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 transform rotate-12" />
                 </div>
-              </motion.div>
+                <Icon className={`w-10 h-10 mb-4 text-red-500`} />
+                <h3 className="text-xl font-bold mb-2" style={{ color: "var(--accent)" }}>{step.title}</h3>
+                <p className="text-gray-700">{step.text}</p>
+              </Card>
             );
           })}
         </motion.div>
