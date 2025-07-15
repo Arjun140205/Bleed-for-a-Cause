@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import BASE_URL from "../../apiConfig";
 import { toast } from "react-toastify";
 import HospitalNavbar from "./HospitalNavbar";
+import Card from "../ui/Card";
 
 const BloodRequestManagement = () => {
   const [requests, setRequests] = useState([]);
@@ -93,7 +94,7 @@ const BloodRequestManagement = () => {
                   <div className="p-8 bg-white/80 rounded-2xl shadow text-center text-gray-500 font-medium">No active blood requests at the moment.</div>
                 ) : (
                   requests.map((req) => (
-                    <div key={req._id} className="bg-white/80 rounded-2xl shadow-lg p-6 flex flex-col md:flex-row md:items-center justify-between border border-red-100 hover:shadow-xl transition-all">
+                    <Card key={req._id} className="bg-white/80 rounded-2xl shadow-lg p-6 flex flex-col md:flex-row md:items-center justify-between border border-red-100 hover:shadow-xl transition-all">
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-3 mb-2">
                           <span className="inline-block w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
@@ -107,24 +108,24 @@ const BloodRequestManagement = () => {
                         )}
                       </div>
                       <div className="mt-4 md:mt-0 flex gap-3">
-                        <button
+                      <button
                           onClick={() => updateStatus(req._id, "fulfilled")}
                           className="px-5 py-2 rounded-lg font-bold bg-gradient-to-r from-green-400 to-green-600 text-white shadow hover:scale-105 transition-transform"
-                        >
+                      >
                           Mark Fulfilled
-                        </button>
-                        <button
+                      </button>
+                      <button
                           onClick={() => updateStatus(req._id, "cancelled")}
                           className="px-5 py-2 rounded-lg font-bold bg-gradient-to-r from-red-400 to-red-600 text-white shadow hover:scale-105 transition-transform"
-                        >
+                      >
                           Cancel
-                        </button>
+                      </button>
                       </div>
-                    </div>
+                    </Card>
                   ))
                 )}
-              </div>
-            )}
+                    </div>
+                  )}
           </div>
         </div>
       </div>
