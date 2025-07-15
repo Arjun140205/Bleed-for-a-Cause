@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import ListItem from "../ui/ListItem";
 
 const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -156,7 +157,7 @@ const FAQ = () => {
         {/* FAQ Items */}
         <div className="space-y-4">
           {faqCategories[activeCategory].faqs.map((faq, index) => (
-            <div
+            <ListItem
               key={index}
               className={`border rounded-lg shadow-sm ${
                 faq.isCategory
@@ -207,7 +208,7 @@ const FAQ = () => {
                   {faq.answer}
                 </div>
               )}
-            </div>
+            </ListItem>
           ))}
         </div>
 
