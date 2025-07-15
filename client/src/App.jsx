@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify';
 // Core components loaded immediately
 import Navbar from "./components/Landing/Navbar";
 import Footer from "./components/Landing/Footer";
+import Loader from "./components/ui/Loader";
 
 // Lazy loaded components
 const LandingPage = lazy(() => import("./components/Landing/LandingPage"));
@@ -42,11 +43,7 @@ const AppLayout = () => {
 };
 
 // Loading fallback component
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
-  </div>
-);
+const LoadingFallback = () => <Loader />;
 
 function App() {
   return (
