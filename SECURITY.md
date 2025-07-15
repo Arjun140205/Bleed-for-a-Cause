@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in BleedForACause, please report it as soon as possible:
 
-- **Email:** [maintainer-email@example.com]
+- **Email:** [arjunbirsingh1699@gmail.com]
 - **GitHub Issues:** Mark the issue as 'Security' and provide as much detail as possible.
 
 ## Supported Versions
