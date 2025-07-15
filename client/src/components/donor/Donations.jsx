@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { FaCheckCircle, FaClock, FaTimesCircle } from "react-icons/fa";
 import BASE_URL from "../../apiConfig";
+import ListItem from "../ui/ListItem";
 
 const Donations = () => {
   const navigate = useNavigate();
@@ -92,10 +93,7 @@ const Donations = () => {
         ) : (
           <ul className="space-y-6">
             {upcomingAppointments.map((appointment, index) => (
-              <li
-                key={index}
-                className="border p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
-              >
+              <ListItem key={index} className="border p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
                 <div className="flex justify-between items-center mb-4">
                   <p className="font-medium text-gray-800">
                     {new Date(appointment.date).toLocaleDateString()}
@@ -113,7 +111,7 @@ const Donations = () => {
                 >
                   View Details
                 </button>
-              </li>
+              </ListItem>
             ))}
           </ul>
         )}
