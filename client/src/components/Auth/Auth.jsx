@@ -7,6 +7,9 @@ import BASE_URL from "../../apiConfig";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Navbar from "../Landing/Navbar";
+import TextInput from "../ui/TextInput";
+import PasswordInput from "../ui/PasswordInput";
+import SelectInput from "../ui/SelectInput";
 
 function Auth() {
   const [userType, setUserType] = useState("Patient");
@@ -672,94 +675,67 @@ function Auth() {
             >
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                  />
-                </div>
+                <TextInput
+                  label={null}
+                  type="text"
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                />
                 {/* City (only for Hospital) */}
                 {userType === "Hospital" && (
-                  <div className="relative">
-                    <select
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                    >
-                      <option value="">Select City</option>
-                      {cities.map((c, idx) => (
-                        <option key={c + idx} value={c}>{c}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <SelectInput
+                    label={null}
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    required
+                    options={cities}
+                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                  />
                 )}
-
                 {/* Age - Only for Patient and Donor */}
                 {(userType === "Patient" || userType === "Donor") && (
-                  <div className="relative">
-                    <input
-                      type="number"
-                      placeholder="Age"
-                      value={age}
-                      onChange={(e) => setAge(e.target.value)}
-                      required
-                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                    />
-                  </div>
+                  <TextInput
+                    label={null}
+                    type="number"
+                    placeholder="Age"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                  />
                 )}
-
                 {/* Contact */}
-                <div className="relative">
-                  <input
-                    type="tel"
-                    placeholder="Contact Number"
-                    value={contact}
-                    onChange={(e) => setContact(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                  />
-                </div>
-
+                <TextInput
+                  label={null}
+                  type="tel"
+                  placeholder="Contact Number"
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                />
                 {/* Email */}
-                <div className="relative">
-                  <input
-                    type="email"
-                    placeholder="Email Address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                  />
-                </div>
-
+                <TextInput
+                  label={null}
+                  type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                />
                 {/* Password */}
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => handlePasswordChange(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300 pr-12"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2"
-                  >
-                    {showPassword ? (
-                      <FaEyeSlash className="text-gray-500 hover:text-red-500 transition-colors" />
-                    ) : (
-                      <FaEye className="text-gray-500 hover:text-red-500 transition-colors" />
-                    )}
-                  </button>
-                </div>
-
+                <PasswordInput
+                  label={null}
+                  value={password}
+                  onChange={(e) => handlePasswordChange(e.target.value)}
+                  required
+                  placeholder="Password"
+                  className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300 pr-12"
+                />
                 {/* Password Checks */}
                 <div className="space-y-2 text-sm">
                   {Object.entries(passwordChecks).map(([check, passed]) => (
@@ -769,8 +745,7 @@ function Auth() {
                         passed ? "text-green-500" : "text-red-500"
                       }`}
                     >
-                      {passed ? "✓" : "○"}{" "}
-                      {check === "length"
+                      {passed ? "✓" : "○"} {check === "length"
                         ? "At least 8 characters"
                         : check === "upper"
                         ? "One uppercase letter"
@@ -782,83 +757,59 @@ function Auth() {
                     </div>
                   ))}
                 </div>
-
                 {/* Conditional Fields based on userType */}
                 {userType === "Patient" && (
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Medical Condition (if any)"
-                      value={medicalCondition}
-                      onChange={(e) => setMedicalCondition(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                    />
-                  </div>
+                  <TextInput
+                    label={null}
+                    type="text"
+                    placeholder="Medical Condition (if any)"
+                    value={medicalCondition}
+                    onChange={(e) => setMedicalCondition(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                  />
                 )}
-
                 {userType === "Hospital" && (
                   <>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="License Number"
-                        value={license}
-                        onChange={(e) => setLicense(e.target.value)}
-                        required
-                        className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                      />
-                    </div>
+                    <TextInput
+                      label={null}
+                      type="text"
+                      placeholder="License Number"
+                      value={license}
+                      onChange={(e) => setLicense(e.target.value)}
+                      required
+                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                    />
                     {/* State (for all types) */}
-                    <div className="relative">
-                      <select
-                        value={state}
-                        onChange={(e) => {
-                          setState(e.target.value);
-                          fetchDistricts(e.target.value);
-                        }}
-                        required
-                        className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                      >
-                        <option value="">Select State</option>
-                        {indianStates.map((s) => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <SelectInput
+                      label={null}
+                      value={state}
+                      onChange={(e) => {
+                        setState(e.target.value);
+                        fetchDistricts(e.target.value);
+                      }}
+                      required
+                      options={indianStates}
+                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                    />
                     {/* City (only for Hospital) */}
-                    {userType === "Hospital" && (
-                      <div className="relative">
-                        <select
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          required
-                          className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                        >
-                          <option value="">Select City</option>
-                          {cities.map((c, idx) => (
-                            <option key={c + idx} value={c}>{c}</option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                    <div className="w-full">
-                      <select
-                        className="w-full px-3 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-gray-600 focus:border-blue-500 focus:outline-none text-white placeholder-gray-300"
-                        value={district}
-                        onChange={(e) => setDistrict(e.target.value)}
-                        required
-                      >
-                        <option value="">Select District</option>
-                        {districts.map((dist, idx) => (
-                          <option key={dist.id || dist + idx} value={dist.name || dist}>
-                            {dist.name || dist}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <SelectInput
+                      label={null}
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      required
+                      options={cities}
+                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                    />
+                    <SelectInput
+                      label={null}
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      required
+                      options={districts.map(dist => dist.name || dist)}
+                      className="w-full px-3 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-gray-600 focus:border-blue-500 focus:outline-none text-white placeholder-gray-300"
+                    />
                   </>
                 )}
-
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
