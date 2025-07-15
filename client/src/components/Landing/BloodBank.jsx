@@ -6,6 +6,9 @@ import { FaClock, FaPhone, FaMapMarkerAlt, FaSearch, FaHeart, FaTint, FaArrowLef
 import PropTypes from 'prop-types';
 import { bloodBanksDatabase } from '../../data/bloodBanksData';
 import { motion } from 'framer-motion';
+import TextInput from "../ui/TextInput";
+import Loader from "../ui/Loader";
+import Card from "../ui/Card";
 
 const INDIA_CENTER = [20.5937, 78.9629];
 const DEFAULT_ZOOM = 5;
@@ -189,7 +192,7 @@ const BloodBankLocator = () => {
                 Search Blood Banks
               </h2>
               <div className="relative">
-                <motion.input
+                <TextInput
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -197,7 +200,6 @@ const BloodBankLocator = () => {
                   placeholder="Enter city, state, or hospital name..."
                   className="w-full px-4 py-3 text-base border-2 border-red-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-300 pr-12 bg-white/60"
                   style={{ color: 'var(--text-main)' }}
-                  whileFocus={{ scale: 1.02 }}
                 />
                 <motion.button
                   onClick={handleSearch}
@@ -207,7 +209,7 @@ const BloodBankLocator = () => {
                   whileTap={{ scale: 0.97 }}
                 >
                   {loading ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <Loader />
                   ) : (
                     <FaSearch className="text-sm" />
                   )}
@@ -281,7 +283,7 @@ const BloodBankLocator = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4 }}
                     >
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
+                      <Loader />
                       <p className="text-base" style={{ color: 'var(--text-muted)' }}>Searching blood banks...</p>
                     </motion.div>
                   ) : searchResults.length > 0 ? (
@@ -300,7 +302,7 @@ const BloodBankLocator = () => {
                       </div>
                       <div className="space-y-3 max-h-72 overflow-y-auto">
                         {searchResults.map((bank, index) => (
-                          <motion.div
+                          <Card
                             key={index}
                             className={`rounded-xl p-4 border hover:border-red-300 hover:bg-red-50 transition-all duration-300 cursor-pointer ${selectedBank === bank ? 'ring-2 ring-red-400' : ''}`}
                             style={{
@@ -308,8 +310,6 @@ const BloodBankLocator = () => {
                               borderColor: 'rgba(200,200,200,0.10)',
                               color: 'var(--text-main)'
                             }}
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.98 }}
                             onClick={() => {
                               setMapCenter([bank.lat, bank.lng]);
                               setMapZoom(15);
@@ -337,7 +337,7 @@ const BloodBankLocator = () => {
                                 <p>{bank.contact}</p>
                               </div>
                             </div>
-                          </motion.div>
+                          </Card>
                         ))}
                       </div>
                     </motion.div>
