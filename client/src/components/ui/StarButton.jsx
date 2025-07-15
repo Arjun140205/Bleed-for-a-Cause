@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
-const StarButton = forwardRef(({
+const StarButton = forwardRef(({ 
   className = "",
   color,
   isActive = false,
@@ -9,7 +9,7 @@ const StarButton = forwardRef(({
   onClick,
   as: Component = null,
   to,
-  ...props
+  ...props 
 }, ref) => {
   const defaultColor = color || "#991b1b"; // red-800
 
