@@ -51,6 +51,9 @@ const AnimatedBlobs = ({ mouse }) => (
   </div>
 );
 
+import TextInput from "../ui/TextInput";
+import SelectInput from "../ui/SelectInput";
+
 const Eligibility = () => {
   const [formData, setFormData] = useState({
     age: "", weight: "", lastDonation: "", chronicDisease: "No", diseaseName: "", recentProcedure: "No", feelingHealthy: "Yes",
@@ -136,115 +139,109 @@ const Eligibility = () => {
           >
             <div className="space-y-1">
               <label className="block font-medium">Age</label>
-              <input
+              <TextInput
+                name="age"
+                type="number"
+                value={formData.age}
+                onChange={handleChange}
                 className="w-full border p-2 rounded"
                 style={{
                   background: "var(--bg-main)",
                   color: "var(--text-main)",
                   borderColor: "rgba(200,0,0,0.13)"
                 }}
-                type="number"
-                name="age"
-                value={formData.age}
-                onChange={handleChange}
               />
             </div>
             <div className="space-y-1">
               <label className="block font-medium">Weight (kg)</label>
-              <input
+              <TextInput
+                name="weight"
+                type="number"
+                value={formData.weight}
+                onChange={handleChange}
                 className="w-full border p-2 rounded"
                 style={{
                   background: "var(--bg-main)",
                   color: "var(--text-main)",
                   borderColor: "rgba(200,0,0,0.13)"
                 }}
-                type="number"
-                name="weight"
-                value={formData.weight}
-                onChange={handleChange}
               />
             </div>
             <div className="space-y-1">
               <label className="block font-medium">Last Donation Date</label>
-              <input
+              <TextInput
+                name="lastDonation"
+                type="date"
+                value={formData.lastDonation}
+                onChange={handleChange}
                 className="w-full border p-2 rounded"
                 style={{
                   background: "var(--bg-main)",
                   color: "var(--text-main)",
                   borderColor: "rgba(200,0,0,0.13)"
                 }}
-                type="date"
-                name="lastDonation"
-                value={formData.lastDonation}
-                onChange={handleChange}
               />
             </div>
             <div className="space-y-1">
               <label className="block font-medium">Do you have any chronic diseases?</label>
-              <select
+              <SelectInput
                 name="chronicDisease"
                 value={formData.chronicDisease}
                 onChange={handleChange}
+                options={["No", "Yes"]}
                 className="w-full border p-2 rounded"
                 style={{
                   background: "var(--bg-main)",
                   color: "var(--text-main)",
                   borderColor: "rgba(200,0,0,0.13)"
                 }}
-              >
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-              </select>
+              />
             </div>
             {formData.chronicDisease === "Yes" && (
               <div className="space-y-1">
                 <label className="block font-medium">If Yes, please specify</label>
-                <input
+                <TextInput
+                  name="diseaseName"
+                  value={formData.diseaseName}
+                  onChange={handleChange}
                   className="w-full border p-2 rounded"
                   style={{
                     background: "var(--bg-main)",
                     color: "var(--text-main)",
                     borderColor: "rgba(200,0,0,0.13)"
                   }}
-                  name="diseaseName"
-                  value={formData.diseaseName}
-                  onChange={handleChange}
                 />
               </div>
             )}
             <div className="space-y-1">
               <label className="block font-medium">Have you had a tattoo, piercing, or surgery in the last 6 months?</label>
-              <select
+              <SelectInput
                 name="recentProcedure"
                 value={formData.recentProcedure}
                 onChange={handleChange}
+                options={["No", "Yes"]}
                 className="w-full border p-2 rounded"
                 style={{
                   background: "var(--bg-main)",
                   color: "var(--text-main)",
                   borderColor: "rgba(200,0,0,0.13)"
                 }}
-              >
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-              </select>
+              />
             </div>
             <div className="space-y-1">
               <label className="block font-medium">Are you currently feeling healthy?</label>
-              <select
+              <SelectInput
                 name="feelingHealthy"
                 value={formData.feelingHealthy}
                 onChange={handleChange}
+                options={["Yes", "No"]}
                 className="w-full border p-2 rounded"
                 style={{
                   background: "var(--bg-main)",
                   color: "var(--text-main)",
                   borderColor: "rgba(200,0,0,0.13)"
                 }}
-              >
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
+              />
             </div>
             <motion.button
               className="w-full mt-4 py-3 px-4 rounded-xl font-bold text-xl bg-gradient-to-r from-red-500 via-red-400 to-red-700 hover:bg-red-700 transition-colors shadow-lg shadow-red-200/40 text-white relative overflow-hidden"
@@ -283,7 +280,7 @@ const Eligibility = () => {
           transition={{ delay: 0.6 }}
         >
           <div className="flex flex-col justify-center items-center w-full h-full relative">
-            <img
+          <img
               src={artisticBloodImg}
               alt="Artistic Blood Donation"
               className="h-[500px] md:h-[600px] w-auto object-contain rounded-3xl bg-white/30 backdrop-blur-lg"
@@ -296,7 +293,7 @@ const Eligibility = () => {
                 background: 'linear-gradient(to top, rgba(255,255,255,0.7), rgba(255,255,255,0))',
               }}
             ></div>
-          </div>
+        </div>
         </motion.div>
       </div>
     </div>
