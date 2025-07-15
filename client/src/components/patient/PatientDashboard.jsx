@@ -6,6 +6,8 @@ import { indianStates, citiesByState } from "../../utils/constants";
 import { FiClock } from "react-icons/fi";
 import BASE_URL from "../../apiConfig";
 import { toast } from "react-toastify";
+import Loader from "../ui/Loader";
+import Card from "../ui/Card";
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
@@ -136,9 +138,7 @@ const PatientDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-      </div>
+      <Loader />
     );
   }
 
@@ -167,26 +167,17 @@ const PatientDashboard = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {quickActions.map((action, index) => (
-            <motion.div
+            <Card
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              className={`${action.color} cursor-pointer hover:shadow-md transition-all`}
               onClick={() => handleActionClick(action.link)}
-              className={`${action.color} rounded-2xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer`}
             >
               <div className="flex flex-col h-full">
-                <div className="mb-4">
-                  {action.icon}
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  {action.title}
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  {action.description}
-                </p>
+                <div className="mb-4">{action.icon}</div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{action.title}</h3>
+                <p className="text-gray-600 text-sm">{action.description}</p>
               </div>
-            </motion.div>
+            </Card>
           ))}
         </div>
 
@@ -287,12 +278,7 @@ const PatientDashboard = () => {
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Search Results</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {searchResults.map((hospital) => (
-                  <motion.div
-                    key={hospital.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white p-4 rounded-lg shadow border border-gray-100"
-                  >
+                  <Card key={hospital.id} className="bg-white p-4 rounded-lg shadow border border-gray-100">
                     <h4 className="font-semibold text-gray-800">{hospital.name}</h4>
                     <div className="mt-2 text-sm text-gray-600">
                       <p className="flex items-center gap-1">
@@ -312,7 +298,7 @@ const PatientDashboard = () => {
                         </a>
                       </div>
                     </div>
-                  </motion.div>
+                  </Card>
                 ))}
               </div>
             </div>
