@@ -3,7 +3,7 @@ import HeroSection from "./HeroSection";
 import Features from "./Features";
 import HowItWorks from "./HowItWorks";
 import Footer from "./Footer";
-import Loader from "./Loader";
+import Loader from "../ui/Loader";
 
 const LandingPage = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
