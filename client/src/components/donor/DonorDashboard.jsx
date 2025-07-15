@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
 import BASE_URL from "../../apiConfig";
+import TextInput from "../ui/TextInput";
+import SelectInput from "../ui/SelectInput";
 
 const checkDonorInfo = async () => {
   const token = localStorage.getItem("authToken");
@@ -210,28 +212,18 @@ const DonorDashboard = () => {
 
             <label className="block">
               <span className="text-gray-600">Blood Type:</span>
-              <select
+              <SelectInput
                 name="bloodType"
-                className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
                 value={formData.bloodType}
                 onChange={handleChange}
                 required
-              >
-                <option value="">Select Blood Type</option>
-                <option value="A_positive">A+</option>
-                <option value="A_negative">A-</option>
-                <option value="B_positive">B+</option>
-                <option value="B_negative">B-</option>
-                <option value="AB_positive">AB+</option>
-                <option value="AB_negative">AB-</option>
-                <option value="O_positive">O+</option>
-                <option value="O_negative">O-</option>
-              </select>
+                options={["A_positive","A_negative","B_positive","B_negative","AB_positive","AB_negative","O_positive","O_negative"]}
+                className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
+              />
             </label>
-
             <label className="block">
               <span className="text-gray-600">Last Donation Date:</span>
-              <input
+              <TextInput
                 type="date"
                 name="lastDonationDate"
                 value={formData.lastDonationDate}
@@ -241,50 +233,31 @@ const DonorDashboard = () => {
                 className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
               />
             </label>
-
             <label className="block">
               <span className="text-gray-600">State:</span>
-              <select
+              <SelectInput
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
                 required
+                options={statesList.map(state => state.label)}
                 className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-              >
-                <option value="">Select State</option>
-                {statesList.map((state) => (
-                  <option key={state.value} value={state.label}>
-                    {state.label}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
-
             <label className="block">
               <span className="text-gray-600">District:</span>
-              <select
+              <SelectInput
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
                 required
+                options={districts.length > 0 ? districts.map(d => d.district) : ["No districts found"]}
                 className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-              >
-                <option value="">Select District</option>
-                {districts.length > 0 ? (
-                  districts.map((districtObj, index) => (
-                    <option key={index} value={districtObj.district}>
-                      {districtObj.district}
-                    </option>
-                  ))
-                ) : (
-                  <option value="">No districts found</option>
-                )}
-              </select>
+              />
             </label>
-
             <label className="block">
               <span className="text-gray-600">Medical Condition:</span>
-              <input
+              <TextInput
                 type="text"
                 name="medicalCondition"
                 value={formData.medicalCondition}
