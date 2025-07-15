@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import Card from "../ui/Card";
 
 const Campaigns = () => {
   const activeCampaigns = [
@@ -36,15 +37,7 @@ const Campaigns = () => {
         
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {activeCampaigns.map((campaign, index) => (
-            <motion.div 
-              key={index}
-              whileHover={{ y: -5 }}
-              className="rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border"
-              style={{
-                background: "var(--bg-surface)",
-                borderColor: "rgba(200,0,0,0.10)"
-              }}
-            >
+            <Card key={index} className="overflow-hidden hover:shadow-xl transition-shadow border">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className={`px-3 py-1 rounded-full text-sm ${
@@ -80,7 +73,7 @@ const Campaigns = () => {
                   Learn More
                 </button>
               </div>
-            </motion.div>
+            </Card>
           ))}
         </div>
 
