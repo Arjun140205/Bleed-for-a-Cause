@@ -5,6 +5,8 @@ import StarButton from "../ui/StarButton";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import BASE_URL from "../../apiConfig";
+import TextInput from "../ui/TextInput";
+import PasswordInput from "../ui/PasswordInput";
 
 const LoginForm = ({ title, color, submit, userType }) => {
   const navigate = useNavigate();
@@ -104,17 +106,18 @@ const LoginForm = ({ title, color, submit, userType }) => {
             whileFocus="focus"
             className="relative mb-4"
           >
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaEnvelope className="h-5 w-5 text-red-400" />
-            </div>
-            <input
+            <TextInput
+              label={null}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="block w-full pl-10 pr-3 py-3 border-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl focus:ring-2 focus:ring-red-500 transition-all duration-300"
               placeholder="Enter your email"
+              className="pl-10 pr-3 py-3 border-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl focus:ring-2 focus:ring-red-500 transition-all duration-300"
             />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaEnvelope className="h-5 w-5 text-red-400" />
+            </div>
           </motion.div>
 
           <motion.div 
@@ -122,28 +125,17 @@ const LoginForm = ({ title, color, submit, userType }) => {
             whileFocus="focus"
             className="relative mb-6"
           >
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaLock className="h-5 w-5 text-red-400" />
-            </div>
-            <input
-              type={showPassword ? "text" : "password"}
+            <PasswordInput
+              label={null}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="block w-full pl-10 pr-12 py-3 border-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl focus:ring-2 focus:ring-red-500 transition-all duration-300"
               placeholder="Enter your password"
+              className="pl-10 pr-12 py-3 border-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl focus:ring-2 focus:ring-red-500 transition-all duration-300"
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-            >
-              {showPassword ? (
-                <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-red-400 transition-colors" />
-              ) : (
-                <FaEye className="h-5 w-5 text-gray-400 hover:text-red-400 transition-colors" />
-              )}
-            </button>
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaLock className="h-5 w-5 text-red-400" />
+            </div>
           </motion.div>
         </div>
 
