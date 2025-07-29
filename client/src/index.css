@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Enable smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
 /* Theme CSS variables */
 :root {
   --bg-main: #fff;
