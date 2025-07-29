@@ -621,57 +621,143 @@ function Auth() {
       <div className="fixed top-0 w-full z-50">
         <Navbar />
       </div>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-gray-100 dark:from-gray-900 dark:to-red-900 p-4">
-        <div className="absolute inset-0 z-0">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-gray-100 p-4">
+        {/* Background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {/* Main gradient */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(255,0,0,0.1),transparent_50%)]"></div>
+          
+          {/* Animated blood drop shapes */}
+          <div className="absolute top-1/4 left-1/5 w-64 h-64 rounded-full bg-red-500/5 blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/5 w-96 h-96 rounded-full bg-red-500/5 blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
         </div>
         
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-xl p-8 bg-white/30 dark:bg-gray-900/30 backdrop-blur-xl backdrop-saturate-150 rounded-2xl shadow-2xl border border-white/20 dark:border-gray-800/20 z-10 mt-20"
+          className="w-full max-w-md p-8 bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 z-10 mt-20"
         >
           <div className="mb-8 text-center">
-            <motion.img
+            <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-              src="/Blood.png"
-              alt="Bleed for a Cause"
-              className="h-16 mx-auto mb-4"
-            />
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
+              className="relative w-20 h-20 mx-auto mb-3"
+            >
+              <img
+                src="/Blood.png"
+                alt="Bleed for a Cause"
+                className="w-full h-full object-contain"
+              />
+              <motion.div 
+                className="absolute inset-0 rounded-full bg-red-500/10" 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              />
+            </motion.div>
+            
+            <motion.h2 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent"
+            >
               {isSignup ? "Create Account" : "Welcome Back"}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            </motion.h2>
+            
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-gray-600 mt-2"
+            >
               {isSignup ? "Join our community today" : "Login to your account"}
-            </p>
+            </motion.p>
           </div>
 
-          <div className="flex justify-center gap-4 mb-6">
-            {["Patient", "Donor", "Hospital"].map((type) => (
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex p-1 rounded-xl bg-gray-100/70 backdrop-blur-sm shadow-inner">
+              {["Patient", "Donor", "Hospital"].map((type) => (
+                <motion.button
+                  key={type}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleUserTypeChange(type)}
+                  className={`relative px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    userType === type
+                      ? "bg-white text-red-600 shadow"
+                      : "text-gray-600 hover:text-red-500"
+                  }`}
+                >
+                  {type}
+                  {userType === type && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                      style={{ zIndex: -1 }}
+                      transition={{ type: "spring", duration: 0.5 }}
+                    />
+                  )}
+                </motion.button>
+              ))}
+            </div>
+          </div>
+
+          {/* Toggle between Login and Signup */}
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex p-1 rounded-xl bg-gray-100/70 backdrop-blur-sm shadow-inner">
               <motion.button
-                key={type}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleUserTypeChange(type)}
-                className={`px-4 py-2 rounded-full transition-all duration-300 ${
-                  userType === type
-                    ? "bg-red-600 text-white shadow-lg shadow-red-500/30"
-                    : "bg-white/50 hover:bg-white/80 dark:bg-gray-800/50 dark:hover:bg-gray-800/80"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setIsSignup(false)}
+                className={`relative px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  !isSignup
+                    ? "bg-white text-red-600 shadow"
+                    : "text-gray-600 hover:text-red-500"
                 }`}
               >
-                {type}
+                Login
+                {!isSignup && (
+                  <motion.div
+                    layoutId="authTab"
+                    className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                    style={{ zIndex: -1 }}
+                    transition={{ type: "spring", duration: 0.5 }}
+                  />
+                )}
               </motion.button>
-            ))}
+              
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setIsSignup(true)}
+                className={`relative px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  isSignup
+                    ? "bg-white text-red-600 shadow"
+                    : "text-gray-600 hover:text-red-500"
+                }`}
+              >
+                Sign Up
+                {isSignup && (
+                  <motion.div
+                    layoutId="authTab"
+                    className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                    style={{ zIndex: -1 }}
+                    transition={{ type: "spring", duration: 0.5 }}
+                  />
+                )}
+              </motion.button>
+            </div>
           </div>
 
           {isSignup ? (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
+              key="signup-form"
             >
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name */}
@@ -682,7 +768,7 @@ function Auth() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                 />
                 {/* City (only for Hospital) */}
                 {userType === "Hospital" && (
@@ -692,7 +778,7 @@ function Auth() {
                     onChange={(e) => setCity(e.target.value)}
                     required
                     options={cities}
-                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                    className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                   />
                 )}
                 {/* Age - Only for Patient and Donor */}
@@ -704,7 +790,7 @@ function Auth() {
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                    className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                   />
                 )}
                 {/* Contact */}
@@ -715,7 +801,7 @@ function Auth() {
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                 />
                 {/* Email */}
                 <TextInput
@@ -725,7 +811,7 @@ function Auth() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                  className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                 />
                 {/* Password */}
                 <PasswordInput
@@ -765,7 +851,7 @@ function Auth() {
                     placeholder="Medical Condition (if any)"
                     value={medicalCondition}
                     onChange={(e) => setMedicalCondition(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                    className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                   />
                 )}
                 {userType === "Hospital" && (
@@ -777,7 +863,7 @@ function Auth() {
                       value={license}
                       onChange={(e) => setLicense(e.target.value)}
                       required
-                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                      className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                     />
                     {/* State (for all types) */}
                     <SelectInput
@@ -789,7 +875,7 @@ function Auth() {
                       }}
                       required
                       options={indianStates}
-                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                      className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                     />
                     {/* City (only for Hospital) */}
                     <SelectInput
@@ -798,7 +884,7 @@ function Auth() {
                       onChange={(e) => setCity(e.target.value)}
                       required
                       options={cities}
-                      className="w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+                      className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                     />
                     <SelectInput
                       label={null}
@@ -806,7 +892,7 @@ function Auth() {
                       onChange={(e) => setDistrict(e.target.value)}
                       required
                       options={districts.map(dist => dist.name || dist)}
-                      className="w-full px-3 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-gray-600 focus:border-blue-500 focus:outline-none text-white placeholder-gray-300"
+                      className="w-full px-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
                     />
                   </>
                 )}
@@ -823,24 +909,23 @@ function Auth() {
               </form>
             </motion.div>
           ) : (
-            <LoginForm
-              userType={userType}
-              onSuccess={(token, type) => {
-                localStorage.setItem("authToken", token);
-                localStorage.setItem("userType", type.toLowerCase());
-                navigate(`/${type.toLowerCase()}`);
-              }}
-            />
-          )}
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setIsSignup(!isSignup)}
-              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+              key="login-form"
             >
-              {isSignup ? "Already have an account? Login" : "Need an account? Sign up"}
-            </button>
-          </div>
+              <LoginForm
+                userType={userType}
+                onSuccess={(token, type) => {
+                  localStorage.setItem("authToken", token);
+                  localStorage.setItem("userType", type.toLowerCase());
+                  navigate(`/${type.toLowerCase()}`);
+                }}
+              />
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </>
