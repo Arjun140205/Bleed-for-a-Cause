@@ -6,13 +6,34 @@ import { FaClock, FaPhone, FaMapMarkerAlt, FaSearch, FaHeart, FaTint, FaArrowLef
 import PropTypes from 'prop-types';
 import { bloodBanksDatabase } from '../../data/bloodBanksData';
 import { motion } from 'framer-motion';
-import TextInput from "../ui/TextInput";
-import Loader from "../ui/Loader";
-import Card from "../ui/Card";
 
 const INDIA_CENTER = [20.5937, 78.9629];
 const DEFAULT_ZOOM = 5;
 const SEARCH_ZOOM = 12;
+
+// ✅ Component to update map view dynamically
+const MapController = ({ center, zoom }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (
+      Array.isArray(center) &&
+      typeof center[0] === 'number' &&
+      typeof center[1] === 'number' &&
+      typeof zoom === 'number'
+    ) {
+      map.setView(center, zoom);
+    }
+  }, [center, zoom, map]);
+
+  return null;
+};
+
+// ✅ Prop validation for MapController
+MapController.propTypes = {
+  center: PropTypes.arrayOf(PropTypes.number).isRequired,
+  zoom: PropTypes.number.isRequired,
+};
 
 // Animated SVG Red Blobs for background
 const AnimatedBlobs = ({ mouse }) => (
@@ -60,26 +81,6 @@ const AnimatedBlobs = ({ mouse }) => (
   </div>
 );
 
-// ✅ Component to update map view dynamically
-const MapController = ({ center, zoom }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (
-      Array.isArray(center) &&
-      typeof center[0] === 'number' &&
-      typeof center[1] === 'number' &&
-      typeof zoom === 'number'
-    ) {
-      map.setView(center, zoom);
-    }
-  }, [center, zoom, map]);
-  return null;
-};
-MapController.propTypes = {
-  center: PropTypes.arrayOf(PropTypes.number).isRequired,
-  zoom: PropTypes.number.isRequired,
-};
-
 const BloodBankLocator = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -87,7 +88,12 @@ const BloodBankLocator = () => {
   const [mapCenter, setMapCenter] = useState(INDIA_CENTER);
   const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
   const [hasSearched, setHasSearched] = useState(false);
-  const [selectedBank, setSelectedBank] = useState(null);
+  // const [selectedBank, setSelectedBank] = useState(null); // Commented out as not currently used
+  
+  // Featured blood banks to show on initial load
+  const [featuredBanks, setFeaturedBanks] = useState([]);
+
+  // Mouse position for parallax effect
   const mouse = useRef({ x: 0, y: 0 });
   const handleMouseMove = (e) => {
     mouse.current = {
@@ -95,6 +101,10 @@ const BloodBankLocator = () => {
       y: e.clientY - window.innerHeight / 2,
     };
   };
+  
+  // For glassmorphism card style
+  // Glass effect styling is now directly applied to elements
+  // const glass = 'bg-white/30 backdrop-blur-lg border border-red-200/40 shadow-2xl shadow-red-200/30';
 
   // Custom marker icon
   const bloodIcon = new Icon({
@@ -128,23 +138,31 @@ const BloodBankLocator = () => {
     if (e.key === 'Enter') handleSearch();
   };
 
-  // Glassmorphism style
-  const glass = 'bg-white/30 backdrop-blur-lg border border-red-200/40 shadow-2xl shadow-red-200/30';
+  // Initialize featured blood banks on component mount
+  useEffect(() => {
+    // Select a few major cities' blood banks to display initially
+    const majorCities = ['Delhi', 'Mumbai', 'Chennai', 'Kolkata', 'Bangalore'];
+    const initialBanks = bloodBanksDatabase.filter(bank => 
+      majorCities.some(city => bank.city.includes(city))
+    ).slice(0, 10); // Limit to 10 initial pins
+    
+    setFeaturedBanks(initialBanks);
+  }, []);
 
   return (
     <div
-      className="relative min-h-screen py-0 overflow-x-hidden"
+      className="relative min-h-screen py-30 px-4 sm:px-6 lg:px-8 overflow-x-hidden"
       style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }}
       onMouseMove={handleMouseMove}
     >
       <AnimatedBlobs mouse={mouse.current} />
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 pt-16 sm:pt-18 lg:pt-18 xl:pt-20">
+      <div className="relative z-10 max-w-7xl mx-auto">
         {/* Hero Section */}
-        <motion.div
-          className="text-center mb-10"
+        <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
+          className="text-center mb-10"
         >
           <motion.div
             initial={{ scale: 0.9 }}
@@ -153,81 +171,109 @@ const BloodBankLocator = () => {
             className="bg-gradient-to-r from-red-500 to-red-700 text-white text-sm font-semibold px-6 py-2 rounded-full inline-block mb-8 shadow-lg shadow-red-300/40"
             style={{ letterSpacing: 2 }}
           >
-            Find a Blood Bank
+            FIND BLOOD DONATION CENTERS
           </motion.div>
-          <motion.h1
-            className="text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-pink-700 mb-6 leading-tight"
+          
+          <motion.h1 
+            className="text-4xl md:text-5xl lg:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-red-600 via-red-400 to-red-800 mb-6 leading-tight drop-shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            style={{ fontFamily: 'Montserrat, sans-serif' }}
           >
-            Locate Blood Banks Across India
+            Blood Bank Locator
           </motion.h1>
+          
           <motion.p
-            className="text-xl max-w-3xl mx-auto"
-            style={{ color: 'var(--text-muted)' }}
+            className="text-xl max-w-3xl mx-auto text-red-900/80 mb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            Search, explore, and connect with blood banks in your city. Save lives by finding the nearest donation center or blood bank.
+            Easily locate blood donation centers near you with our interactive map. Search by location to find the nearest blood banks and donation facilities.
           </motion.p>
         </motion.div>
-        {/* Wavy Divider */}
-        <svg className="w-full h-10 mb-8" viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 30 Q 360 60 720 30 T 1440 30 V60 H0V30Z" fill="#fee2e2" />
-        </svg>
-        <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 lg:gap-6 min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-4.5rem)] lg:min-h-[calc(100vh-5rem)] xl:min-h-[calc(100vh-6rem)]">
+
+        <div className="flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-16rem)]">
           {/* Left Panel - Search and Results */}
-          <div className="w-full lg:w-2/5 flex flex-col">
+          <motion.div 
+            className="w-full lg:w-2/5 flex flex-col"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+          >
             {/* Search Section */}
             <motion.div
-              className={`rounded-3xl shadow-xl p-5 mb-5 ${glass}`}
-              initial={{ opacity: 0, y: 30 }}
+              className="rounded-xl shadow-xl p-5 mb-6 border border-red-100/40 backdrop-blur-sm"
+              style={{
+                background: "rgba(255, 255, 255, 0.3)",
+                boxShadow: "0 8px 32px rgba(252, 165, 165, 0.15)"
+              }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.7, duration: 0.5 }}
             >
-              <h2 className="text-xl font-bold mb-4 flex items-center bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-red-800">
+              <motion.h2 
+                className="text-xl font-bold mb-4 flex items-center text-red-700"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
                 <FaSearch className="mr-2 text-red-600 text-lg" />
                 Search Blood Banks
-              </h2>
+              </motion.h2>
+              
               <div className="relative">
-                <TextInput
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Enter city, state, or hospital name..."
-                  className="w-full px-4 py-3 text-base border-2 border-red-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-300 pr-12 bg-white/60"
-                  style={{ color: 'var(--text-main)' }}
-                />
-                <motion.button
-                  onClick={handleSearch}
-                  disabled={loading}
-                  className="absolute right-2 top-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition-all duration-300 flex items-center disabled:opacity-50 shadow-md"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
+                <motion.div 
+                  className="input-wrapper relative"
+                  initial={{ width: "95%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ delay: 0.9, duration: 0.5 }}
                 >
-                  {loading ? (
-                    <Loader />
-                  ) : (
-                    <FaSearch className="text-sm" />
-                  )}
-                </motion.button>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Enter city, state, or hospital name..."
+                    className="w-full px-5 py-4 text-base border-2 border-red-200/50 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200/50 transition-all duration-300 pr-12 bg-white/70 placeholder-red-400/70"
+                    style={{ color: "#333" }}
+                  />
+                  <motion.button
+                    onClick={handleSearch}
+                    disabled={loading}
+                    className="absolute right-3 top-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center disabled:opacity-50 shadow-md shadow-red-300/30"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {loading ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    ) : (
+                      <FaSearch className="text-sm" />
+                    )}
+                  </motion.button>
+                </motion.div>
               </div>
-              <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>
+              
+              <motion.p 
+                className="text-sm mt-3 text-red-700/80 italic"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+              >
                 Search across major cities in India
-              </p>
+              </motion.p>
             </motion.div>
+
             {/* Return to Quick Search Button */}
             {hasSearched && (
-              <motion.div
-                className="mb-5"
-                initial={{ opacity: 0, y: 20 }}
+              <motion.div 
+                className="mb-6"
+                initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ duration: 0.3 }}
               >
-                <button
+                <motion.button
                   onClick={() => {
                     setHasSearched(false);
                     setSearchResults([]);
@@ -235,26 +281,44 @@ const BloodBankLocator = () => {
                     setMapCenter([20.5937, 78.9629]);
                     setMapZoom(5);
                   }}
-                  className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-xl transition-all duration-300 text-sm font-medium border border-red-200 hover:border-red-300 flex items-center"
+                  className="bg-gradient-to-r from-red-50 to-white text-red-700 px-4 py-2.5 rounded-lg transition-all duration-300 text-sm font-medium border border-red-200/50 hover:border-red-300 flex items-center shadow-sm hover:shadow-md"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <FaArrowLeft className="mr-2 text-xs" />
                   Back to Quick Search
-                </button>
+                </motion.button>
               </motion.div>
             )}
+
             {/* Quick Search Suggestions */}
             {!hasSearched && (
               <motion.div
-                className={`rounded-3xl shadow-xl p-5 mb-5 ${glass}`}
-                initial={{ opacity: 0, y: 30 }}
+                className="rounded-xl shadow-lg p-6 mb-6 border border-red-100/40 backdrop-blur-sm"
+                style={{
+                  background: "rgba(255, 255, 255, 0.3)",
+                  boxShadow: "0 8px 32px rgba(252, 165, 165, 0.15)"
+                }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 1.1, duration: 0.5 }}
               >
-                <h3 className="text-lg font-semibold mb-4 flex items-center bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-red-800">
+                <motion.h3 
+                  className="text-lg font-bold mb-4 flex items-center text-red-700"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2 }}
+                >
                   <FaHeart className="mr-2 text-red-600 text-base" />
                   Quick Search
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                </motion.h3>
+                
+                <motion.div 
+                  className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.3, staggerChildren: 0.1 }}
+                >
                   {['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bangalore', 'Hyderabad', 'Ahmedabad', 'Pune', 'Jaipur', 'Lucknow', 'Patna', 'AIIMS'].map((city, index) => (
                     <motion.button
                       key={index}
@@ -262,176 +326,257 @@ const BloodBankLocator = () => {
                         setSearchQuery(city);
                         setTimeout(handleSearch, 100);
                       }}
-                      className="bg-red-50 hover:bg-red-100 text-red-700 px-3 py-2 rounded-xl transition-all duration-300 text-sm font-medium border border-red-200 hover:border-red-300 shadow-sm"
+                      className="bg-white/70 hover:bg-red-100/80 text-red-700 px-3 py-2 rounded-lg transition-all duration-300 text-sm font-medium border border-red-200/30 hover:border-red-300/80 shadow-sm hover:shadow-md"
                       whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.97 }}
+                      whileTap={{ scale: 0.95 }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.3 + index * 0.05 }}
                     >
                       {city}
                     </motion.button>
                   ))}
-                </div>
+                </motion.div>
               </motion.div>
             )}
+
             {/* Results Section */}
-            <div className="flex-1 overflow-y-auto">
+            <motion.div 
+              className="flex-1 overflow-y-auto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.4 }}
+            >
               {hasSearched && (
                 <>
                   {loading ? (
                     <motion.div
-                      className={`text-center py-12 rounded-3xl shadow-xl ${glass}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
+                      className="text-center py-12 rounded-xl shadow-xl border border-red-100/30 backdrop-blur-sm"
+                      style={{
+                        background: "rgba(255, 255, 255, 0.2)",
+                        boxShadow: "0 8px 32px rgba(252, 165, 165, 0.15)"
+                      }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5 }}
                     >
-                      <Loader />
-                      <p className="text-base" style={{ color: 'var(--text-muted)' }}>Searching blood banks...</p>
+                      <div className="flex justify-center">
+                        <div className="relative h-16 w-16">
+                          <div className="absolute inset-0 rounded-full border-4 border-red-200 opacity-25"></div>
+                          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-red-600 animate-spin"></div>
+                        </div>
+                      </div>
+                      <p className="text-base text-red-700/80 mt-4 font-medium">Searching blood banks...</p>
                     </motion.div>
                   ) : searchResults.length > 0 ? (
                     <motion.div
-                      className={`rounded-3xl shadow-xl p-5 ${glass}`}
-                      initial={{ opacity: 0, y: 30 }}
+                      className="rounded-xl shadow-xl border border-red-100/40 p-6 backdrop-blur-sm"
+                      style={{
+                        background: "rgba(255, 255, 255, 0.3)",
+                        boxShadow: "0 8px 32px rgba(252, 165, 165, 0.15)"
+                      }}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 }}
+                      transition={{ duration: 0.5 }}
                     >
-                      <div className="mb-4">
-                        <h3 className="text-lg font-bold flex items-center bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-red-800">
+                      <motion.div 
+                        className="mb-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <h3 className="text-lg font-bold flex items-center text-red-700">
                           <FaTint className="mr-2 text-red-600 text-base" />
                           Found {searchResults.length} Blood Bank{searchResults.length !== 1 ? 's' : ''}
                         </h3>
-                        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Click on any card to view location on map</p>
-                      </div>
-                      <div className="space-y-3 max-h-72 overflow-y-auto">
+                        <p className="text-sm mt-1 text-red-700/70 italic">Click on any card to view location on map</p>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="space-y-3 max-h-[24rem] overflow-y-auto pr-2 custom-scrollbar"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                      >
                         {searchResults.map((bank, index) => (
-                          <Card
+                          <motion.div
                             key={index}
-                            className={`rounded-xl p-4 border hover:border-red-300 hover:bg-red-50 transition-all duration-300 cursor-pointer ${selectedBank === bank ? 'ring-2 ring-red-400' : ''}`}
-                            style={{
-                              background: 'var(--bg-main)',
-                              borderColor: 'rgba(200,200,200,0.10)',
-                              color: 'var(--text-main)'
-                            }}
+                            className="rounded-lg p-4 border border-red-200/30 hover:border-red-300/80 bg-white/50 hover:bg-white/80 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md group"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 + index * 0.05 }}
                             onClick={() => {
                               setMapCenter([bank.lat, bank.lng]);
                               setMapZoom(15);
-                              setSelectedBank(bank);
                             }}
                           >
                             <div className="flex items-start justify-between mb-2">
-                              <h4 className="text-base font-semibold pr-2 bg-clip-text text-transparent bg-gradient-to-r from-red-700 to-red-400">{bank.name}</h4>
-                              <FaTint className="text-red-600 text-lg flex-shrink-0 animate-pulse" />
+                              <h4 className="text-base font-bold pr-2 text-red-700 group-hover:text-red-800 transition-colors">{bank.name}</h4>
+                              <FaTint className="text-red-600 text-lg flex-shrink-0 group-hover:text-red-700 transition-colors" />
                             </div>
-                            <div className="space-y-1 text-sm" style={{ color: 'var(--text-muted)' }}>
-                              <div className="flex items-start gap-2">
+                            <div className="space-y-2 text-sm text-red-900/70">
+                              <div className="flex items-start gap-3">
                                 <FaMapMarkerAlt className="text-red-500 mt-1 flex-shrink-0 text-sm" />
                                 <div>
-                                  <p className="font-medium" style={{ color: 'var(--text-main)' }}>{bank.city}, {bank.state}</p>
-                                  <p className="text-xs">{bank.address}</p>
+                                  <p className="font-semibold text-red-800">{bank.city}, {bank.state}</p>
+                                  <p className="text-xs text-red-800/70">{bank.address}</p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-3">
                                 <FaClock className="text-red-500 flex-shrink-0 text-sm" />
                                 <p>{bank.hours}</p>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-3">
                                 <FaPhone className="text-red-500 flex-shrink-0 text-sm" />
                                 <p>{bank.contact}</p>
                               </div>
                             </div>
-                          </Card>
+                            <div className="mt-3 pt-2 border-t border-red-200/30 flex justify-end">
+                              <motion.button 
+                                className="text-red-600 hover:text-red-800 font-medium text-sm flex items-center gap-1 transition-colors duration-300"
+                                whileHover={{ x: 3 }}
+                              >
+                                View on Map 
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                              </motion.button>
+                            </div>
+                          </motion.div>
                         ))}
-                      </div>
+                      </motion.div>
                     </motion.div>
                   ) : (
                     <motion.div
-                      className={`text-center py-12 rounded-3xl shadow-xl ${glass}`}
+                      className="text-center py-12 rounded-xl shadow-xl border border-red-100/40 backdrop-blur-sm"
+                      style={{
+                        background: "rgba(255, 255, 255, 0.3)",
+                        boxShadow: "0 8px 32px rgba(252, 165, 165, 0.15)"
+                      }}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
+                      transition={{ duration: 0.5 }}
                     >
-                      <p className="text-base" style={{ color: 'var(--text-muted)' }}>No blood banks found for your search.</p>
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <div className="bg-white/40 h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <FaSearch className="text-3xl text-red-400" />
+                        </div>
+                      </motion.div>
+                      <motion.h3 
+                        className="text-lg font-bold mb-2 text-red-700"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        No Blood Banks Found
+                      </motion.h3>
+                      <motion.p 
+                        className="mb-4 text-base text-red-700/70"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                      >
+                        We could not find any blood banks matching your search
+                      </motion.p>
+                      <motion.p 
+                        className="text-sm px-4 text-red-700/70 italic"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                        Try searching for major cities like Delhi, Mumbai, Kolkata, Chennai, etc.
+                      </motion.p>
                     </motion.div>
                   )}
                 </>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
+
           {/* Right Panel - Map */}
-          <motion.div
-            className={`w-full lg:w-3/5 flex flex-col items-center justify-center rounded-3xl shadow-2xl ${glass} relative min-h-[500px]`}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+          <motion.div 
+            className="w-full lg:w-3/5"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.8 }}
           >
-            <div className="w-full h-[500px] md:h-[600px] rounded-3xl overflow-hidden relative">
-              <MapContainer center={mapCenter} zoom={mapZoom} scrollWheelZoom={true} className="w-full h-full z-10">
+            <motion.div
+              className="rounded-xl shadow-xl p-5 border border-red-100/40 backdrop-blur-sm h-full min-h-[320px] lg:min-h-[500px]"
+              style={{
+                background: "rgba(255, 255, 255, 0.3)",
+                boxShadow: "0 8px 32px rgba(252, 165, 165, 0.15)"
+              }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1, duration: 0.5 }}
+            >
+              <motion.h3 
+                className="text-xl font-bold mb-4 flex items-center text-red-700"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.1 }}
+              >
+                <FaMapMarkerAlt className="mr-2 text-red-600 text-lg" />
+                Interactive Map
+              </motion.h3>
+              <MapContainer
+                center={INDIA_CENTER}
+                zoom={DEFAULT_ZOOM}
+                className="h-[200px] sm:h-[280px] lg:h-[400px] xl:h-[500px] w-full rounded-md sm:rounded-lg shadow-lg"
+              >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution="&copy; OpenStreetMap contributors"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 <MapController center={mapCenter} zoom={mapZoom} />
-                {(hasSearched ? searchResults : bloodBanksDatabase).map((bank, idx) => (
+                
+                {/* Show either search results or featured banks */}
+                {(hasSearched ? searchResults : featuredBanks).map((bank, index) => (
                   <Marker
-                    key={idx}
+                    key={`${bank.name}-${index}`}
                     position={[bank.lat, bank.lng]}
                     icon={bloodIcon}
                   >
-                    <Popup>
-                      <div className="text-sm font-semibold mb-1">{bank.name}</div>
-                      <div className="text-xs mb-1">{bank.city}, {bank.state}</div>
-                      <div className="text-xs">{bank.address}</div>
+                    <Popup className="custom-popup">
+                      <div className="space-y-2 sm:space-y-3 p-1 sm:p-2">
+                        <h3 className="font-bold text-red-600 text-sm sm:text-base lg:text-lg">{bank.name}</h3>
+                        <div className="flex items-start gap-2">
+                          <FaMapMarkerAlt className="text-red-500 mt-1 flex-shrink-0 text-xs sm:text-sm" />
+                          <p className="text-xs sm:text-sm" style={{ color: "var(--text-main)" }}>{bank.address}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FaClock className="text-red-500 text-xs sm:text-sm" />
+                          <p className="text-xs sm:text-sm" style={{ color: "var(--text-muted)" }}>{bank.hours}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FaPhone className="text-red-500 text-xs sm:text-sm" />
+                          <p className="text-xs sm:text-sm" style={{ color: "var(--text-muted)" }}>{bank.contact}</p>
+                        </div>
+                      </div>
                     </Popup>
                   </Marker>
                 ))}
               </MapContainer>
-              {/* Artistic floating blood drop */}
-              <motion.div
-                className="absolute -top-8 -right-8"
-                animate={{ y: [0, 10, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-              >
-                <svg width="48" height="48" viewBox="0 0 40 40" fill="none">
-                  <ellipse cx="20" cy="30" rx="10" ry="16" fill="#ef4444" fillOpacity="0.25" />
-                  <path d="M20 6 C24 16, 32 22, 20 38 C8 22, 16 16, 20 6 Z" fill="#ef4444" />
-                </svg>
-              </motion.div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
-        {/* CTA Banner */}
-        <motion.div
-          className="mt-12 rounded-3xl p-8 text-center shadow-2xl bg-gradient-to-r from-red-500 via-red-400 to-red-700 relative overflow-hidden"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <h2 className="text-2xl font-extrabold mb-4 text-white drop-shadow-lg">
-            Can’t find a blood bank near you?
-          </h2>
-          <p className="text-lg max-w-2xl mx-auto mb-6 text-white/90">
-            Become a donor or contact us for more information. Every effort counts in saving lives!
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <motion.a
-              href="/eligibility"
-              className="bg-white text-red-600 font-bold px-8 py-4 rounded-xl hover:bg-red-100 transition-colors shadow-lg shadow-red-200/40 text-xl relative overflow-hidden"
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              Check Eligibility
-            </motion.a>
-            <motion.a
-              href="/contact"
-              className="bg-transparent border-2 border-white text-white font-bold px-8 py-4 rounded-xl hover:bg-white/10 transition-colors text-xl shadow-lg shadow-red-200/40 relative overflow-hidden"
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              Contact Us
-            </motion.a>
-          </div>
-        </motion.div>
       </div>
     </div>
   );
+};
+
+// Add PropTypes validation for AnimatedBlobs
+AnimatedBlobs.propTypes = {
+  mouse: PropTypes.shape({
+    x: PropTypes.number,
+    y: PropTypes.number
+  }).isRequired
 };
 
 export default BloodBankLocator;
