@@ -18,7 +18,7 @@ const LandingPage = () => {
       <Features />
       <HowItWorks />
       {/* Uncomment the following if you want the footer on the landing page */}
-      {/* <Footer /> */}
+      { <Footer /> }
     </div>
   );
 };
