@@ -26,7 +26,7 @@ const HaemoglobinPredictor = () => {
     e.preventDefault();
     try {
       const response = await fetch(
-        "/api/predict/haemoglobin",
+        "http://localhost:8000/predict/haemoglobin",
         {
           method: "POST",
           headers: {
