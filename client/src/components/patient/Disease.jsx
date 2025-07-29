@@ -82,7 +82,7 @@ function Disease() {
 
   const handlePredict = async () => {
     try {
-      const response = await fetch('/api/predict/disease', {
+      const response = await fetch('http://localhost:8000/predict/disease', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ symptoms: selectedSymptoms }),
