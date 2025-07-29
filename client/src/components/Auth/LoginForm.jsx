@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import StarButton from "../ui/StarButton";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import BASE_URL from "../../apiConfig";
 
-const LoginForm = ({ title, color, submit, userType }) => {
+const LoginForm = ({ userType, onSuccess }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -72,9 +72,9 @@ const LoginForm = ({ title, color, submit, userType }) => {
       }
       navigate(dashboardPath, { replace: true });
       
-      // Call the submit function passed from parent if exists
-      if (submit) {
-        submit(data);
+      // Call the onSuccess function if it exists
+      if (onSuccess) {
+        onSuccess(data.token, data.userType);
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -84,90 +84,96 @@ const LoginForm = ({ title, color, submit, userType }) => {
     }
   };
 
-  const inputVariants = {
-    focus: { scale: 1.02, transition: { type: "spring", stiffness: 300 } }
-  };
-
   return (
-    <div className="flex justify-center items-center bg-calm/5 h-full">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-[400px]"
+    <motion.form
+      onSubmit={handleSubmit}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-4"
+    >
+
+      {/* Email Input */}
+      <motion.div 
+        whileHover={{ scale: 1.01 }}
+        className="relative"
       >
-        <h2 className={`text-2xl font-bold text-center text-${color}-600 mb-6`}>
-          {title}
-        </h2>
-
-        <div className="space-y-4">
-          <motion.div 
-            variants={inputVariants}
-            whileFocus="focus"
-            className="relative mb-4"
-          >
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaEnvelope className="h-5 w-5 text-red-400" />
-            </div>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="block w-full pl-10 pr-3 py-3 border-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl focus:ring-2 focus:ring-red-500 transition-all duration-300"
-              placeholder="Enter your email"
-            />
-          </motion.div>
-
-          <motion.div 
-            variants={inputVariants}
-            whileFocus="focus"
-            className="relative mb-6"
-          >
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaLock className="h-5 w-5 text-red-400" />
-            </div>
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="block w-full pl-10 pr-12 py-3 border-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl focus:ring-2 focus:ring-red-500 transition-all duration-300"
-              placeholder="Enter your password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center"
-            >
-              {showPassword ? (
-                <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-red-400 transition-colors" />
-              ) : (
-                <FaEye className="h-5 w-5 text-gray-400 hover:text-red-400 transition-colors" />
-              )}
-            </button>
-          </motion.div>
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <FaEnvelope className="h-5 w-5 text-red-400" />
         </div>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="block w-full pl-12 pr-4 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+          placeholder="Email address"
+        />
+      </motion.div>
 
-        <StarButton
-          type="submit"
-          disabled={isLoading}
-          className="w-full text-red-700 disabled:opacity-70 disabled:cursor-not-allowed"
+      {/* Password Input */}
+      <motion.div 
+        whileHover={{ scale: 1.01 }}
+        className="relative"
+      >
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <FaLock className="h-5 w-5 text-red-400" />
+        </div>
+        <input
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="block w-full pl-12 pr-12 py-3 bg-white/50 backdrop-blur-md rounded-xl border-0 focus:ring-2 focus:ring-red-500 transition-all duration-300"
+          placeholder="Password"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute inset-y-0 right-0 pr-4 flex items-center"
         >
-          {isLoading ? (
-            <div className="flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-red-700 border-t-transparent rounded-full animate-spin mr-2"></div>
-              Signing in...
-            </div>
+          {showPassword ? (
+            <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-red-400 transition-colors" />
           ) : (
-            'Sign In'
+            <FaEye className="h-5 w-5 text-gray-400 hover:text-red-400 transition-colors" />
           )}
-        </StarButton>
+        </button>
+      </motion.div>
 
-        <div className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
-          <a href="#" className="hover:text-red-500 transition-colors">Forgot your password?</a>
-        </div>
-      </form>
-    </div>
+      {/* Forgot Password Link */}
+      <div className="text-right text-sm">
+        <a href="#" className="text-red-600 hover:text-red-800 transition-colors">
+          Forgot password?
+        </a>
+      </div>
+
+      {/* Submit Button */}
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        type="submit"
+        disabled={isLoading}
+        className="w-full py-3 mt-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-semibold 
+        shadow-lg shadow-red-500/30 hover:shadow-red-500/40 
+        disabled:opacity-70 disabled:cursor-not-allowed
+        transition-all duration-300"
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center">
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+            Signing in...
+          </div>
+        ) : (
+          'Sign In'
+        )}
+      </motion.button>
+    </motion.form>
   );
+};
+
+LoginForm.propTypes = {
+  userType: PropTypes.string.isRequired,
+  onSuccess: PropTypes.func
 };
 
 export default LoginForm;
