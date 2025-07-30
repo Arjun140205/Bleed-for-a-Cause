@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { motion } from "framer-motion";
+import { FaTint, FaCalendarCheck, FaHospital, FaMapMarkerAlt } from "react-icons/fa";
 import BASE_URL from "../../apiConfig";
 import TextInput from "../ui/TextInput";
 import SelectInput from "../ui/SelectInput";
@@ -29,6 +31,52 @@ const updateDonorInfo = async (donorData) => {
 
   return response.json();
 };
+
+// Animated SVG Red Blobs for background
+const AnimatedBlobs = ({ mouse }) => (
+  <div className="pointer-events-none fixed inset-0 z-0">
+    <motion.svg
+      width="100vw"
+      height="100vh"
+      viewBox="0 0 1440 900"
+      className="absolute top-0 left-0 w-full h-full"
+      style={{ filter: 'blur(60px)', opacity: 0.35 }}
+    >
+      <motion.ellipse
+        cx={400 + (mouse.x || 0) * 0.1}
+        cy={300 + (mouse.y || 0) * 0.1}
+        initial={{ rx: 320, ry: 180 }}
+        animate={{
+          rx: [320, 340, 320],
+          ry: [180, 200, 180],
+        }}
+        fill="url(#red1)"
+        transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
+      />
+      <motion.ellipse
+        cx={1100 - (mouse.x || 0) * 0.08}
+        cy={600 - (mouse.y || 0) * 0.08}
+        initial={{ rx: 220, ry: 120 }}
+        animate={{
+          rx: [220, 250, 220],
+          ry: [120, 140, 120],
+        }}
+        fill="url(#red2)"
+        transition={{ repeat: Infinity, duration: 10, ease: 'easeInOut' }}
+      />
+      <defs>
+        <radialGradient id="red1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ff4d4f" />
+          <stop offset="100%" stopColor="#b91c1c" />
+        </radialGradient>
+        <radialGradient id="red2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#f87171" />
+          <stop offset="100%" stopColor="#991b1b" />
+        </radialGradient>
+      </defs>
+    </motion.svg>
+  </div>
+);
 
 const statesList = [
   { value: "35", label: "Andaman and Nicobar Islands" },
@@ -81,6 +129,18 @@ const DonorDashboard = () => {
     medicalCondition: "",
   });
   const [bloodBanks, setBloodBanks] = useState([]);
+  
+  // Mouse position for parallax effect
+  const mouse = useRef({ x: 0, y: 0 });
+  const handleMouseMove = (e) => {
+    mouse.current = {
+      x: e.clientX - window.innerWidth / 2,
+      y: e.clientY - window.innerHeight / 2,
+    };
+  };
+  
+  // For glassmorphism card style
+  const glass = 'bg-white/30 backdrop-blur-lg border border-red-200/40 shadow-2xl shadow-red-200/30';
 
   useEffect(() => {
     const fetchDonorInfo = async () => {
@@ -202,153 +262,254 @@ const DonorDashboard = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full  bg-white shadow-lg rounded-lg p-6">
+    <div 
+      className="relative min-h-screen py-20 px-4 sm:px-6 lg:px-8"
+      style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }}
+      onMouseMove={handleMouseMove}
+    >
+      <AnimatedBlobs mouse={mouse.current} />
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12"
+        >
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="bg-gradient-to-r from-red-500 to-red-700 text-white text-sm font-semibold px-6 py-2 rounded-full inline-block mb-6 shadow-lg shadow-red-300/40"
+            style={{ letterSpacing: 2 }}
+          >
+            {missingInfo ? "COMPLETE YOUR PROFILE" : "DONOR DASHBOARD"}
+          </motion.div>
+          
+          <motion.h1 
+            className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-red-600 via-red-400 to-red-800 mb-4 leading-tight drop-shadow-lg"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+          >
+            {missingInfo ? "Complete Your Profile" : "Nearby Blood Banks"}
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="max-w-2xl mx-auto text-lg text-gray-600"
+          >
+            {missingInfo 
+              ? "Please provide the following details to complete your profile" 
+              : "Find blood banks in your area and schedule your next donation"
+            }
+          </motion.p>
+        </motion.div>
+
         {missingInfo ? (
-          <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-            <h2 className="text-xl font-semibold text-center text-gray-700">
-              Complete Your Profile
-            </h2>
-
-            <label className="block">
-              <span className="text-gray-600">Blood Type:</span>
-              <SelectInput
-                name="bloodType"
-                value={formData.bloodType}
-                onChange={handleChange}
-                required
-                options={["A_positive","A_negative","B_positive","B_negative","AB_positive","AB_negative","O_positive","O_negative"]}
-                className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-              />
-            </label>
-            <label className="block">
-              <span className="text-gray-600">Last Donation Date:</span>
-              <TextInput
-                type="date"
-                name="lastDonationDate"
-                value={formData.lastDonationDate}
-                onChange={handleChange}
-                max={new Date().toISOString().split("T")[0]}
-                required
-                className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-              />
-            </label>
-            <label className="block">
-              <span className="text-gray-600">State:</span>
-              <SelectInput
-                name="state"
-                value={formData.state}
-                onChange={handleChange}
-                required
-                options={statesList.map(state => state.label)}
-                className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-              />
-            </label>
-            <label className="block">
-              <span className="text-gray-600">District:</span>
-              <SelectInput
-                name="district"
-                value={formData.district}
-                onChange={handleChange}
-                required
-                options={districts.length > 0 ? districts.map(d => d.district) : ["No districts found"]}
-                className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-              />
-            </label>
-            <label className="block">
-              <span className="text-gray-600">Medical Condition:</span>
-              <TextInput
-                type="text"
-                name="medicalCondition"
-                value={formData.medicalCondition}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border rounded-lg focus:ring focus:ring-blue-300"
-              />
-            </label>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
-            >
-              Submit
-            </button>
-          </form>
-        ) : (
-          <div className="min-h-screen bg-red-50 py-12 px-6">
-            <div className="max-w-7xl mx-auto">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-                <span className="text-red-600">Nearby</span> Blood Banks
-              </h2>
-
-              {bloodBanks.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {bloodBanks.map((bank, index) => (
-                    (bank.contact || bank.email) ? (
-                      <div
-                      key={index}
-                      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden "
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+            className={`${glass} rounded-2xl overflow-hidden max-w-xl mx-auto`}
+          >
+            <div className="p-8">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <div className="flex items-center mb-2">
+                    <motion.div 
+                      whileHover={{ scale: 1.15, rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 0.6 }}
+                      className="mr-2 text-red-500"
                     >
-                      <div className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-xl font-semibold text-gray-900 truncate">
-                            {bank.name || "Unnamed Blood Bank"}
-                          </h3>
-                          <div
-                            className="w-2 h-2 rounded-full bg-green-500"
-                            title="Open"
-                          ></div>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div className="flex items-start space-x-3 h-[13vh] overflow-scroll">
-                            <MapPin className="w-5 h-5 text-red-500 mt-1 flex-shrink-0" />
-                            <p className="text-gray-600">
-                              {bank.address || "No address available"}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center space-x-3">
-                            <Mail className="w-5 h-5 text-red-500 flex-shrink-0" />
-                            {bank.email ? (
-                              <a
-                                href={`mailto:${bank.email}`}
-                                className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                              >
-                                {bank.email}
-                              </a>
-                            ) : (
-                              <span className="text-gray-500">
-                                No email available
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center space-x-3">
-                            <Phone className="w-5 h-5 text-red-500 flex-shrink-0" />
-                            <p className="text-gray-600">
-                              {bank.contact || "No contact available"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="px-6 py-4 bg-gray-50 border-t">
-                        <button className=" cursor-pointer w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 font-medium">
-                          Book Appointment
-                        </button>
-                      </div>
-                    </div>
-                    ) : null
-                  ))}
+                      <FaTint size={18} />
+                    </motion.div>
+                    <label className="text-gray-800 font-medium">Blood Type:</label>
+                  </div>
+                  <SelectInput
+                    name="bloodType"
+                    value={formData.bloodType}
+                    onChange={handleChange}
+                    required
+                    options={["A_positive","A_negative","B_positive","B_negative","AB_positive","AB_negative","O_positive","O_negative"]}
+                    className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                  />
                 </div>
-              ) : (
-                <div className="text-center py-12 bg-white rounded-lg shadow">
-                  <p className="text-gray-600 text-lg">
-                    No blood banks found in your area
-                  </p>
+                
+                <div>
+                  <div className="flex items-center mb-2">
+                    <motion.div 
+                      whileHover={{ scale: 1.15, rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 0.6 }}
+                      className="mr-2 text-red-500"
+                    >
+                      <FaCalendarCheck size={18} />
+                    </motion.div>
+                    <label className="text-gray-800 font-medium">Last Donation Date:</label>
+                  </div>
+                  <TextInput
+                    type="date"
+                    name="lastDonationDate"
+                    value={formData.lastDonationDate}
+                    onChange={handleChange}
+                    max={new Date().toISOString().split("T")[0]}
+                    required
+                    className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                  />
                 </div>
-              )}
+                
+                <div>
+                  <div className="flex items-center mb-2">
+                    <motion.div 
+                      whileHover={{ scale: 1.15, rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 0.6 }}
+                      className="mr-2 text-red-500"
+                    >
+                      <FaMapMarkerAlt size={18} />
+                    </motion.div>
+                    <label className="text-gray-800 font-medium">State:</label>
+                  </div>
+                  <SelectInput
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
+                    required
+                    options={statesList.map(state => state.label)}
+                    className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                  />
+                </div>
+                
+                <div>
+                  <div className="flex items-center mb-2">
+                    <motion.div 
+                      whileHover={{ scale: 1.15, rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 0.6 }}
+                      className="mr-2 text-red-500"
+                    >
+                      <FaMapMarkerAlt size={18} />
+                    </motion.div>
+                    <label className="text-gray-800 font-medium">District:</label>
+                  </div>
+                  <SelectInput
+                    name="district"
+                    value={formData.district}
+                    onChange={handleChange}
+                    required
+                    options={districts.length > 0 ? districts.map(d => d.district) : ["No districts found"]}
+                    className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                  />
+                </div>
+                
+                <div>
+                  <div className="flex items-center mb-2">
+                    <motion.div 
+                      whileHover={{ scale: 1.15, rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 0.6 }}
+                      className="mr-2 text-red-500"
+                    >
+                      <FaHospital size={18} />
+                    </motion.div>
+                    <label className="text-gray-800 font-medium">Medical Condition:</label>
+                  </div>
+                  <TextInput
+                    type="text"
+                    name="medicalCondition"
+                    value={formData.medicalCondition}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                  />
+                </div>
+                
+                <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full px-6 py-4 font-bold text-white bg-gradient-to-r from-red-500 to-red-700 rounded-lg hover:from-red-600 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 shadow-lg shadow-red-500/30"
+                >
+                  Complete Profile
+                </motion.button>
+              </form>
             </div>
+          </motion.div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {bloodBanks.length > 0 ? (
+              bloodBanks.map((bank, index) => (
+                (bank.contact || bank.email) ? (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * index, duration: 0.6 }}
+                    className={`${glass} rounded-2xl overflow-hidden`}
+                  >
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-semibold text-gray-800 truncate">
+                          {bank.name || "Unnamed Blood Bank"}
+                        </h3>
+                        <div
+                          className="w-2 h-2 rounded-full bg-green-500"
+                          title="Open"
+                        ></div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex items-start space-x-3 h-[13vh] overflow-auto">
+                          <MapPin className="w-5 h-5 text-red-500 mt-1 flex-shrink-0" />
+                          <p className="text-gray-600">
+                            {bank.address || "No address available"}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center space-x-3">
+                          <Mail className="w-5 h-5 text-red-500 flex-shrink-0" />
+                          {bank.email ? (
+                            <a
+                              href={`mailto:${bank.email}`}
+                              className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                            >
+                              {bank.email}
+                            </a>
+                          ) : (
+                            <span className="text-gray-500">
+                              No email available
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center space-x-3">
+                          <Phone className="w-5 h-5 text-red-500 flex-shrink-0" />
+                          <p className="text-gray-600">
+                            {bank.contact || "No contact available"}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full mt-6 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 px-4 rounded-lg hover:from-red-600 hover:to-red-700 transition-colors duration-300 font-medium shadow-md shadow-red-200"
+                      >
+                        Book Appointment
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                ) : null
+              ))
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className={`${glass} rounded-xl p-8 text-center col-span-1 md:col-span-3`}
+              >
+                <p className="text-gray-600 text-lg">
+                  No blood banks found in your area
+                </p>
+              </motion.div>
+            )}
           </div>
         )}
       </div>
