@@ -26,7 +26,7 @@ const Donations = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ authToken }),
+          body: JSON.stringify({ token: authToken }),
         });
 
         const data = await response.json();
