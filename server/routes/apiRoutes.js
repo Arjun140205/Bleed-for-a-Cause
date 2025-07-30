@@ -58,6 +58,31 @@ apiRouter.post("/api/predict/haemoglobin", async (req, res) => {
   res.json({ predicted_haemoglobin: previous_haemoglobin, advice });
 });
 
+// Get all available symptoms
+apiRouter.get("/api/symptoms", async (req, res) => {
+  try {
+    // Fetch distinct symptoms from the disease dataset
+    const diseases = await DiseaseDataset.find({}, { symptoms: 1, _id: 0 });
+    
+    // Extract and flatten all symptoms
+    let allSymptoms = [];
+    diseases.forEach(disease => {
+      if (disease.symptoms) {
+        const diseaseSymptoms = disease.symptoms.split(',').map(s => s.trim());
+        allSymptoms.push(...diseaseSymptoms);
+      }
+    });
+    
+    // Remove duplicates and sort
+    const uniqueSymptoms = [...new Set(allSymptoms)].sort();
+    
+    res.json({ symptoms: uniqueSymptoms });
+  } catch (error) {
+    console.error("Error fetching symptoms:", error);
+    res.status(500).json({ error: "Server error fetching symptoms" });
+  }
+});
+
 // Disease prediction: simple lookup
 apiRouter.post("/api/predict/disease", async (req, res) => {
   const { symptoms } = req.body; // symptoms: array of strings
