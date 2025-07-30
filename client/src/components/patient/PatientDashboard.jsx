@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaSearch, FaMapMarkerAlt, FaTint, FaUserCircle, FaVial, FaNotesMedical, FaHistory } from "react-icons/fa";
@@ -6,6 +6,7 @@ import { indianStates, citiesByState } from "../../utils/constants";
 import { FiClock } from "react-icons/fi";
 import BASE_URL from "../../apiConfig";
 import { toast } from "react-toastify";
+import { AnimatedBlobs, GlassCard, SectionTitle, Button, PageLayout } from "./PatientComponents";
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
@@ -18,6 +19,15 @@ const PatientDashboard = () => {
     state: "",
     city: ""
   });
+  
+  // Mouse position for parallax effect
+  const mouse = useRef({ x: 0, y: 0 });
+  const handleMouseMove = (e) => {
+    mouse.current = {
+      x: e.clientX - window.innerWidth / 2,
+      y: e.clientY - window.innerHeight / 2,
+    };
+  };
 
   // Feature cards data
   const quickActions = [
