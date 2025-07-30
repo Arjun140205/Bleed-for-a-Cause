@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import HeroSection from "./HeroSection";
 import Features from "./Features";
 import HowItWorks from "./HowItWorks";
-import Footer from "./Footer";
 import Loader from "../ui/Loader";
 
 const LandingPage = () => {
@@ -17,8 +16,7 @@ const LandingPage = () => {
       <HeroSection onVideoLoaded={() => setIsVideoLoaded(true)} />
       <Features />
       <HowItWorks />
-      {/* Uncomment the following if you want the footer on the landing page */}
-      { <Footer /> }
+      {/* Footer is already included in the App layout */}
     </div>
   );
 };
