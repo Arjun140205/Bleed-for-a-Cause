@@ -1,0 +1,332 @@
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import BASE_URL from "../../apiConfig";
+import HospitalNavbar from "./HospitalNavbar";
+
+// Import charts
+import MainGraph from "./charts/updated/MainGraph";
+import BloodTypeDonut from "./charts/updated/BloodTypeDonut";
+import BloodSupplyForecast from "./charts/updated/BloodSupplyForecast";
+import DonationTrends from "./charts/updated/DonationTrends";
+
+// Sample data
+const initialInventory = {
+  A: { units: 15, capacity: 40, donors: 8 },
+  B: { units: 25, capacity: 40, donors: 12 },
+  AB: { units: 5, capacity: 40, donors: 3 },
+  O: { units: 35, capacity: 40, donors: 15 },
+};
+
+const criticalAlerts = [
+  { id: 1, type: "AB+", level: "critical", message: "Only 2 units remaining" },
+  { id: 2, type: "A-", level: "warning", message: "Below safety threshold" },
+];
+
+const recentDonations = [
+  { id: 1, name: "John Doe", type: "O+", date: "2024-03-15", units: 2 },
+  { id: 2, name: "Jane Smith", type: "A+", date: "2024-03-14", units: 1.5 },
+  { id: 3, name: "Michael Brown", type: "B+", date: "2024-03-12", units: 1 },
+  { id: 4, name: "Sarah Wilson", type: "AB+", date: "2024-03-10", units: 2.5 },
+];
+
+const HospitalDashboard = () => {
+  const [inventory, setInventory] = useState(initialInventory);
+  const [timeRange, setTimeRange] = useState("7d");
+  const [selectedBloodType] = useState("All");
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
+  const navigate = useNavigate();
+
+  // For animated background
+  const mouse = useRef({ x: 0, y: 0 });
+  
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      mouse.current = {
+        x: e.clientX,
+        y: e.clientY
+      };
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
+  // Simulate inventory changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setInventory((prev) =>
+        Object.entries(prev).reduce(
+          (acc, [type, data]) => ({
+            ...acc,
+            [type]: {
+              ...data,
+              units: Math.max(
+                0,
+                data.units + Math.floor(Math.random() * 3 - 1)
+              ),
+            },
+          }),
+          {}
+        )
+      );
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Authentication
+  useEffect(() => {
+    const authenticateUser = async () => {
+      const userType = localStorage.getItem("userType");
+      const authToken = localStorage.getItem("authToken");
+
+      if (userType !== "hospital" || !authToken) {
+        localStorage.clear();
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BASE_URL}/auth/verify/hospital`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: authToken }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Authentication failed");
+        }
+
+        setIsAuthenticating(false);
+      } catch (error) {
+        console.error("Authentication error:", error);
+        localStorage.clear();
+        navigate("/login");
+      }
+    };
+
+    authenticateUser();
+  }, [navigate]);
+
+  const getStatusColor = (units) => {
+    if (units < 5) return "bg-red-500";
+    if (units < 15) return "bg-amber-400";
+    return "bg-emerald-500";
+  };
+
+  // Loading state
+  if (isAuthenticating) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <HospitalNavbar />
+      
+      {/* Background blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 opacity-10">
+        <svg
+          viewBox="0 0 1000 1000"
+          xmlns="http://www.w3.org/2000/svg"
+          className="absolute w-full h-full"
+        >
+          <defs>
+            <linearGradient id="blob1-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#ef4444" />
+              <stop offset="100%" stopColor="#b91c1c" />
+            </linearGradient>
+            <linearGradient id="blob2-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#f87171" />
+              <stop offset="100%" stopColor="#dc2626" />
+            </linearGradient>
+          </defs>
+          
+          <path
+            fill="url(#blob1-gradient)"
+            d="M827.5,670.3C740.8,774.6,654,878.9,546.6,903.7C439.2,928.4,311.2,873.7,229.7,782.3C148.2,690.9,113.2,562.7,152,456.8C190.8,350.9,303.4,267.2,416,208.9C528.7,150.6,641.4,117.6,711,160.9C780.5,204.1,806.9,323.6,826,434.5C845.2,545.4,857.1,647.5,827.5,670.3Z"
+          />
+          
+          <path
+            fill="url(#blob2-gradient)"
+            d="M796.6,628.8C746.1,736,695.6,843.1,603.6,889.6C511.5,936.2,378,922.1,278.1,851.5C178.2,780.8,112,653.5,108.4,530.8C104.9,408.1,164,290,249.9,228.1C335.8,166.2,448.5,160.5,546.6,132.8C644.8,105.1,728.5,55.3,779.1,162.8C829.7,270.3,847.2,521.5,796.6,628.8Z"
+          />
+        </svg>
+      </div>
+      
+      {/* Main content */}
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        {/* Header */}
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Blood Management Dashboard
+          </h1>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            Real-time data updates
+          </div>
+        </header>
+
+        {/* Alerts */}
+        {criticalAlerts.length > 0 && (
+          <div className="mb-8 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-red-500 text-xl">⚠️</span>
+                <div>
+                  <h3 className="font-semibold text-red-700">Critical Alerts</h3>
+                  <p className="text-sm text-red-600">
+                    {criticalAlerts.length} blood groups require immediate attention
+                  </p>
+                </div>
+              </div>
+              <button
+                className="px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 rounded-lg"
+                onClick={() => {}}
+              >
+                View Details →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Blood Inventory Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {Object.entries(inventory).map(([type, data]) => (
+            <div key={type} className="p-4 border border-gray-100 rounded-xl bg-white shadow-sm hover:shadow-md transition-all">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h3 className={`text-2xl font-bold ${getStatusColor(data.units).replace("bg", "text")}`}>
+                    {type}+
+                  </h3>
+                  <p className="text-sm text-gray-500">{data.donors} active donors</p>
+                </div>
+                <span className="text-lg font-semibold">{data.units} Units</span>
+              </div>
+              <div className="w-full bg-gray-100 h-2 rounded-full">
+                <div
+                  className={`${getStatusColor(data.units)} h-2 rounded-full transition-all duration-500`}
+                  style={{ width: `${(data.units / data.capacity) * 100}%` }}
+                />
+              </div>
+              <div className="mt-2 flex justify-between text-sm text-gray-600">
+                <span>{Math.round((data.units / data.capacity) * 100)}% capacity</span>
+                <span>{data.capacity - data.units} remaining</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Blood Inventory Trends</h2>
+              <div className="flex space-x-2">
+                <button
+                  className={`px-3 py-1 rounded text-sm ${
+                    timeRange === "24h" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-700"
+                  }`}
+                  onClick={() => setTimeRange("24h")}
+                >
+                  24H
+                </button>
+                <button
+                  className={`px-3 py-1 rounded text-sm ${
+                    timeRange === "7d" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-700"
+                  }`}
+                  onClick={() => setTimeRange("7d")}
+                >
+                  7D
+                </button>
+                <button
+                  className={`px-3 py-1 rounded text-sm ${
+                    timeRange === "30d" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-700"
+                  }`}
+                  onClick={() => setTimeRange("30d")}
+                >
+                  30D
+                </button>
+              </div>
+            </div>
+            <MainGraph timeRange={timeRange} bloodType={selectedBloodType} />
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <BloodTypeDonut inventory={inventory} />
+          </div>
+        </div>
+        
+        {/* Lower Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <BloodSupplyForecast />
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <DonationTrends />
+          </div>
+        </div>
+
+        {/* Recent Donations */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">Recent Donations</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Donor
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Blood Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Units
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {recentDonations.map((donation) => (
+                  <tr key={donation.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {donation.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {donation.type}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {donation.date}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {donation.units}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Processed
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HospitalDashboard;
