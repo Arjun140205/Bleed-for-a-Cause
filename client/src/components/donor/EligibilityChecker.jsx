@@ -93,86 +93,208 @@ const EligibilityChecker = () => {
     }
   };
 
+  // For glassmorphism card style
+  const glass = 'bg-white/30 backdrop-blur-lg border border-red-200/40 shadow-2xl shadow-red-200/30';
+  
+  // Icon variants for animation
+  const iconVariants = {
+    initial: { scale: 1 },
+    hover: { scale: 1.15, rotate: [0, 10, -10, 0], transition: { duration: 0.6 } },
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Donor Eligibility Checker
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700">Weight (kg):</label>
-            <input
-              type="number"
-              name="weight"
-              value={formData.weight}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Last Donation (days ago):</label>
-            <input
-              type="number"
-              name="lastDonation"
-              value={formData.lastDonation}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Recent International Travel (days ago):</label>
-            <input
-              type="number"
-              name="recentTravel"
-              value={formData.recentTravel}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Current Medications:</label>
-            <input
-              type="text"
-              name="medications"
-              value={formData.medications}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Health Conditions:</label>
-            <select
-              name="healthCondition"
-              value={formData.healthCondition}
-              onChange={handleChange}
-              className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-            >
-              <option value="">Select Health Condition</option>
-              <option value="none">None</option>
-              <option value="hypertension">Hypertension</option>
-              <option value="diabetes">Diabetes</option>
-              <option value="anemia">Anemia</option>
-            </select>
-          </div>
-          <button
-            type="submit"
-            className="w-full px-4 py-2 font-bold text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+    <div 
+      className="relative min-h-screen py-20 px-4 sm:px-6 lg:px-8"
+      style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }}
+      onMouseMove={handleMouseMove}
+    >
+      <AnimatedBlobs mouse={mouse.current} />
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12"
+        >
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="bg-gradient-to-r from-red-500 to-red-700 text-white text-sm font-semibold px-6 py-2 rounded-full inline-block mb-6 shadow-lg shadow-red-300/40"
+            style={{ letterSpacing: 2 }}
           >
-            Check Eligibility
-          </button>
-        </form>
-        {eligibility && (
-          <div className="mt-6">
-            <h2 className="text-xl font-bold mb-2">Eligibility Result</h2>
-            <p className={`text-lg font-semibold ${eligibility.isEligible ? 'text-green-600' : 'text-red-600'}`}>
-              {eligibility.isEligible ? "Eligible to Donate" : "Not Eligible to Donate"}
-            </p>
-            <p className="text-gray-700 mt-2">{eligibility.message}</p>
+            BLOOD DONATION ELIGIBILITY
+          </motion.div>
+          
+          <motion.h1 
+            className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-red-600 via-red-400 to-red-800 mb-4 leading-tight drop-shadow-lg"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+          >
+            Check Your Eligibility
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="max-w-2xl mx-auto text-lg text-gray-600"
+          >
+            Find out if you're eligible to donate blood today and help save lives.
+          </motion.p>
+        </motion.div>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className={`${glass} rounded-2xl overflow-hidden max-w-xl mx-auto`}
+        >
+          <div className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <div className="flex items-center mb-2">
+                  <motion.div 
+                    variants={iconVariants}
+                    whileHover="hover"
+                    className="mr-2 text-red-500"
+                  >
+                    <FaWeight size={18} />
+                  </motion.div>
+                  <label className="text-gray-800 font-medium">Weight (kg):</label>
+                </div>
+                <input
+                  type="number"
+                  name="weight"
+                  value={formData.weight}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                />
+              </div>
+              
+              <div>
+                <div className="flex items-center mb-2">
+                  <motion.div 
+                    variants={iconVariants}
+                    whileHover="hover"
+                    className="mr-2 text-red-500"
+                  >
+                    <FaCalendarAlt size={18} />
+                  </motion.div>
+                  <label className="text-gray-800 font-medium">Last Donation (days ago):</label>
+                </div>
+                <input
+                  type="number"
+                  name="lastDonation"
+                  value={formData.lastDonation}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                />
+              </div>
+              
+              <div>
+                <div className="flex items-center mb-2">
+                  <motion.div 
+                    variants={iconVariants}
+                    whileHover="hover"
+                    className="mr-2 text-red-500"
+                  >
+                    <FaPlane size={18} />
+                  </motion.div>
+                  <label className="text-gray-800 font-medium">Recent International Travel (days ago):</label>
+                </div>
+                <input
+                  type="number"
+                  name="recentTravel"
+                  value={formData.recentTravel}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                />
+              </div>
+              
+              <div>
+                <div className="flex items-center mb-2">
+                  <motion.div 
+                    variants={iconVariants}
+                    whileHover="hover"
+                    className="mr-2 text-red-500"
+                  >
+                    <FaPrescriptionBottleAlt size={18} />
+                  </motion.div>
+                  <label className="text-gray-800 font-medium">Current Medications:</label>
+                </div>
+                <input
+                  type="text"
+                  name="medications"
+                  value={formData.medications}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                />
+              </div>
+              
+              <div>
+                <div className="flex items-center mb-2">
+                  <motion.div 
+                    variants={iconVariants}
+                    whileHover="hover"
+                    className="mr-2 text-red-500"
+                  >
+                    <FaHeartbeat size={18} />
+                  </motion.div>
+                  <label className="text-gray-800 font-medium">Health Conditions:</label>
+                </div>
+                <select
+                  name="healthCondition"
+                  value={formData.healthCondition}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-lg bg-white/50 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                >
+                  <option value="">Select Health Condition</option>
+                  <option value="none">None</option>
+                  <option value="hypertension">Hypertension</option>
+                  <option value="diabetes">Diabetes</option>
+                  <option value="anemia">Anemia</option>
+                </select>
+              </div>
+              
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-6 py-4 font-bold text-white bg-gradient-to-r from-red-500 to-red-700 rounded-lg hover:from-red-600 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 shadow-lg shadow-red-500/30"
+              >
+                Check Eligibility
+              </motion.button>
+            </form>
+            
+            {eligibility && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="mt-8 p-6 rounded-xl bg-white/60 border border-gray-100"
+              >
+                <h2 className="text-2xl font-bold mb-4 text-gray-800">Eligibility Result</h2>
+                <div className="flex items-center mb-3">
+                  {eligibility.isEligible ? (
+                    <FaCheckCircle size={24} className="text-green-500 mr-2" />
+                  ) : (
+                    <FaTimesCircle size={24} className="text-red-500 mr-2" />
+                  )}
+                  <p className={`text-xl font-semibold ${eligibility.isEligible ? 'text-green-600' : 'text-red-600'}`}>
+                    {eligibility.isEligible ? "You Are Eligible to Donate" : "You Are Not Eligible to Donate"}
+                  </p>
+                </div>
+                <p className="text-gray-700 bg-white/50 p-4 rounded-lg border border-gray-100">
+                  {eligibility.message}
+                </p>
+              </motion.div>
+            )}
           </div>
-        )}
+        </motion.div>
       </div>
     </div>
   );
