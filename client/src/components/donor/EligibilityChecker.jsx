@@ -1,6 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { motion } from "framer-motion";
+import { FaCheckCircle, FaTimesCircle, FaWeight, FaCalendarAlt, FaPlane, FaPrescriptionBottleAlt, FaHeartbeat } from 'react-icons/fa';
+
+// Animated SVG Red Blobs for background
+const AnimatedBlobs = ({ mouse }) => (
+  <div className="pointer-events-none fixed inset-0 z-0">
+    <motion.svg
+      width="100vw"
+      height="100vh"
+      viewBox="0 0 1440 900"
+      className="absolute top-0 left-0 w-full h-full"
+      style={{ filter: 'blur(60px)', opacity: 0.35 }}
+    >
+      <motion.ellipse
+        cx={400 + (mouse.x || 0) * 0.1}
+        cy={300 + (mouse.y || 0) * 0.1}
+        initial={{ rx: 320, ry: 180 }}
+        animate={{
+          rx: [320, 340, 320],
+          ry: [180, 200, 180],
+        }}
+        fill="url(#red1)"
+        transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
+      />
+      <motion.ellipse
+        cx={1100 - (mouse.x || 0) * 0.08}
+        cy={600 - (mouse.y || 0) * 0.08}
+        initial={{ rx: 220, ry: 120 }}
+        animate={{
+          rx: [220, 250, 220],
+          ry: [120, 140, 120],
+        }}
+        fill="url(#red2)"
+        transition={{ repeat: Infinity, duration: 10, ease: 'easeInOut' }}
+      />
+      <defs>
+        <radialGradient id="red1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ff4d4f" />
+          <stop offset="100%" stopColor="#b91c1c" />
+        </radialGradient>
+        <radialGradient id="red2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#f87171" />
+          <stop offset="100%" stopColor="#991b1b" />
+        </radialGradient>
+      </defs>
+    </motion.svg>
+  </div>
+);
 
 const EligibilityChecker = () => {
+  // Mouse position for parallax effect
+  const mouse = useRef({ x: 0, y: 0 });
+  const handleMouseMove = (e) => {
+    mouse.current = {
+      x: e.clientX - window.innerWidth / 2,
+      y: e.clientY - window.innerHeight / 2,
+    };
+  };
+  
   const [formData, setFormData] = useState({
     weight: "",
     lastDonation: "",
