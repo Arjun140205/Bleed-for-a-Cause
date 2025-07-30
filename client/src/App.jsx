@@ -18,17 +18,18 @@ const FAQ = lazy(() => import("./components/Landing/FAQ"));
 const BloodBanks = lazy(() => import("./components/Landing/BloodBank"));
 const Auth = lazy(() => import("./components/Auth/Auth"));
 const Patient = lazy(() => import("./components/patient/Patient"));
-const Requests = lazy(() => import("./components/patient/Requests"));
-const PatientProfile = lazy(() => import("./components/patient/PatientProfile"));
-const PatientDashboard = lazy(() => import("./components/patient/PatientDashboard"));
+// Import styled patient components
+const Requests = lazy(() => import("./components/patient/RequestsStyled"));
+const PatientProfile = lazy(() => import("./components/patient/PatientProfileStyled"));
+const PatientDashboard = lazy(() => import("./components/patient/PatientDashboardStyled"));
 const HospitalHome = lazy(() => import("./components/hospital/HospitalHome"));
-const HaemoglobinPredictor = lazy(() => import("./components/patient/Haemoglobin"));
+const HaemoglobinPredictor = lazy(() => import("./components/patient/HaemoglobinStyled"));
 const DonorDashboard = lazy(() => import("./components/donor/DonorDashboard"));
 const DonorProfile = lazy(() => import("./components/donor/DonorProfile"));
 const Donations = lazy(() => import("./components/donor/Donations"));
 const EligibilityChecker = lazy(() => import("./components/donor/EligibilityChecker"));
 const BloodRequestManagement = lazy(() => import("./components/hospital/BloodRequestManagement"));
-const Disease = lazy(() => import("./components/patient/Disease"));
+const Disease = lazy(() => import("./components/patient/DiseaseStyled"));
 const Eligibility = lazy(() => import("./components/Landing/Eligibility"));
 // import Footer from "./components/Landing/Footer";
 
