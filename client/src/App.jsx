@@ -24,6 +24,7 @@ const PatientProfile = lazy(() => import("./components/patient/PatientProfileSty
 const PatientDashboard = lazy(() => import("./components/patient/PatientDashboardStyled"));
 const HospitalHome = lazy(() => import("./components/hospital/HospitalHome"));
 const HaemoglobinPredictor = lazy(() => import("./components/patient/HaemoglobinStyled"));
+const ThalassemiaRiskPredictor = lazy(() => import("./components/patient/ThalassemiaRiskPredictor"));
 const DonorDashboard = lazy(() => import("./components/donor/DonorDashboard"));
 const DonorProfile = lazy(() => import("./components/donor/DonorProfile"));
 const Donations = lazy(() => import("./components/donor/Donations"));
@@ -73,6 +74,7 @@ function App() {
               <Route path="requests" element={<Requests />} />
               <Route path="haemoglobin" element={<HaemoglobinPredictor />} />
               <Route path="disease" element={<Disease />} />
+              <Route path="thalassemia" element={<ThalassemiaRiskPredictor />} />
             </Route>
 
             {/* Donor Routes */}
