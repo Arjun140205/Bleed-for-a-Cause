@@ -52,6 +52,10 @@ const patientSchema = mongoose.Schema(
       minLength: 0,
       maxLength: 100,
     },
+    lastTransfusionDate: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
