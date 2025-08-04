@@ -9,6 +9,7 @@ import apiRouter from "./routes/apiRoutes.js";
 import patientRouter from "./routes/patientAPI.js";
 import donorRouter from "./routes/donorAPI.js";
 import hospitalRouter from "./routes/hospitalAPI.js";
+import thalassemiaRouter from "./routes/thalassemiaRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -36,6 +37,7 @@ app.use("/", apiRouter);
 app.use("/patient", patientRouter);
 app.use("/donor", donorRouter);
 app.use("/hospital", hospitalRouter);
+app.use("/", thalassemiaRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Bleed for a Cause API");
