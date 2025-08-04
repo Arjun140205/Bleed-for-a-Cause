@@ -81,6 +81,21 @@ const donorSchema = mongoose.Schema(
       minLength: 0,
       maxLength: 100,
     },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        default: [0, 0]
+      }
+    },
+    address: {
+      type: String,
+      default: ""
+    },
   },
   {
     timestamps: true,
