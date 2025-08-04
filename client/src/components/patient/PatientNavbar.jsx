@@ -12,7 +12,8 @@ const PatientNavbar = () => {
     { name: "Dashboard", path: "dashboard" },
     { name: "Requests", path: "requests" },
     { name: "Haemoglobin", path: "haemoglobin" },
-    { name: "Disease", path: "disease" }
+    { name: "Disease", path: "disease" },
+    { name: "Thalassemia", path: "thalassemia" }
   ];
 
   const handleLogout = () => {
