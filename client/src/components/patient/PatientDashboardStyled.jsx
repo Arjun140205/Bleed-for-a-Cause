@@ -4,6 +4,7 @@ import { FaChartPie, FaCalendarCheck, FaUserMd, FaClipboardList, FaHeartbeat, Fa
 import BASE_URL from '../../apiConfig';
 import { toast } from 'react-toastify';
 import { AnimatedBlobs, GlassCard, SectionTitle, Button, PageLayout, InfoCard } from './PatientComponents';
+import TransfusionReminder from './TransfusionReminder';
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
@@ -177,6 +178,9 @@ const PatientDashboard = () => {
               color="bg-indigo-500"
             />
           </div>
+          
+          {/* Transfusion Reminder */}
+          <TransfusionReminder />
           
           {/* Recent activity section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
