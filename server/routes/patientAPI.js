@@ -257,4 +257,129 @@ patientRouter.put("/profile", async (req, res) => {
   }
 });
 
+/**
+ * @route   GET /api/patient/transfusion-reminder
+ * @desc    Get transfusion reminder status for thalassemia patients
+ * @access  Private
+ */
+patientRouter.get("/transfusion-reminder", async (req, res) => {
+  try {
+    // Get token from authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Authentication token is required" 
+      });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const patientId = decoded.id;
+    
+    // Fetch patient data
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({
+        success: false,
+        message: "Patient not found"
+      });
+    }
+
+    // Check for lastTransfusionDate
+    if (!patient.lastTransfusionDate) {
+      return res.status(200).json({
+        success: true,
+        message: "No previous transfusion record found",
+        status: "unknown",
+        lastTransfusionDate: null,
+        daysElapsed: null
+      });
+    }
+
+    // Calculate days since last transfusion
+    const lastTransfusionDate = new Date(patient.lastTransfusionDate);
+    const today = new Date();
+    const diffTime = Math.abs(today - lastTransfusionDate);
+    const daysElapsed = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    let message, status;
+    
+    // Determine message based on days elapsed
+    if (daysElapsed > 28) {
+      message = `Urgent: Transfusion overdue by ${daysElapsed - 28} days`;
+      status = "urgent";
+    } else if (daysElapsed >= 21 && daysElapsed <= 28) {
+      message = "Reminder: Transfusion due soon";
+      status = "warning";
+    } else {
+      message = `Next transfusion in ${21 - daysElapsed} days`;
+      status = "normal";
+    }
+    
+    res.status(200).json({
+      success: true,
+      message,
+      status,
+      lastTransfusionDate: patient.lastTransfusionDate,
+      daysElapsed
+    });
+    
+  } catch (error) {
+    console.error("Error getting transfusion reminder:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve transfusion status"
+    });
+  }
+});
+
+// Add an endpoint to update last transfusion date
+patientRouter.post("/update-transfusion-date", async (req, res) => {
+  try {
+    // Get token from authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Authentication token is required" 
+      });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const patientId = decoded.id;
+    
+    // Get date from request body or use current date
+    const transfusionDate = req.body.transfusionDate ? new Date(req.body.transfusionDate) : new Date();
+    
+    // Update patient record
+    const updatedPatient = await Patient.findByIdAndUpdate(
+      patientId,
+      { lastTransfusionDate: transfusionDate },
+      { new: true }
+    );
+    
+    if (!updatedPatient) {
+      return res.status(404).json({
+        success: false,
+        message: "Patient not found"
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: "Last transfusion date updated successfully",
+      lastTransfusionDate: updatedPatient.lastTransfusionDate
+    });
+    
+  } catch (error) {
+    console.error("Error updating transfusion date:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update transfusion date"
+    });
+  }
+});
+
 export default patientRouter;
