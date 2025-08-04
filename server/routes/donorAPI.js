@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Router } from "express";
 import Donor from "../models/donor.js";
+import { findCompatibleDonors } from "../utils/donorMatching.js";
 const donorRouter = Router();
 
 const JWT_SECRET = process.env.JWT_SECRET; 
@@ -115,6 +116,74 @@ donorRouter.post("/history", async (req, res) => {
   } catch (error) {
     console.error("Error fetching donation history:", error);
     res.status(401).json({ error: "Invalid or expired token" });
+  }
+});
+
+/**
+ * @route   POST /api/donor/find-compatible
+ * @desc    Find nearby compatible donors
+ * @access  Private
+ */
+donorRouter.post("/find-compatible", async (req, res) => {
+  try {
+    const { bloodType, location, authToken } = req.body;
+    
+    if (!bloodType || !location || !location.lat || !location.lng) {
+      return res.status(400).json({
+        success: false,
+        message: "Blood type and location are required"
+      });
+    }
+
+    // Verify user authentication (optional)
+    if (authToken) {
+      try {
+        jwt.verify(authToken, JWT_SECRET);
+        // You could extract patient ID here if needed
+      } catch (error) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid or expired token"
+        });
+      }
+    }
+
+    // Get all donors
+    const allDonors = await Donor.find({
+      bloodType: { $exists: true },
+      'location.coordinates.0': { $ne: 0 }, // Only donors with location data
+      'location.coordinates.1': { $ne: 0 }
+    });
+
+    // Find compatible donors within 10km radius
+    const compatibleDonors = findCompatibleDonors(
+      allDonors,
+      bloodType,
+      location.lat,
+      location.lng,
+      10 // Max 10km radius
+    );
+
+    // Return limited information about donors
+    const safeDonerInfo = compatibleDonors.map(donor => ({
+      name: donor.name,
+      bloodType: donor.bloodType,
+      distance: donor.distance,
+      district: donor.district,
+      state: donor.state
+    }));
+
+    return res.status(200).json({
+      success: true,
+      count: safeDonerInfo.length,
+      donors: safeDonerInfo
+    });
+  } catch (error) {
+    console.error("Error finding compatible donors:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while finding donors"
+    });
   }
 });
 
