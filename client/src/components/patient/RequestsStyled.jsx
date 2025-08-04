@@ -12,12 +12,14 @@ import {
 import BASE_URL from "../../apiConfig";
 import { toast } from "react-toastify";
 import { AnimatedBlobs, GlassCard, SectionTitle, Button, PageLayout } from "./PatientComponents";
+import CompatibleDonorFinder from "./CompatibleDonorFinder";
 
 const Requests = () => {
   const navigate = useNavigate();
   const [requestHistory, setRequestHistory] = useState([]);
   const [activeRequests, setActiveRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [patientData, setPatientData] = useState(null);
 
   // Mouse position for parallax effect
   const mouse = useRef({ x: 0, y: 0 });
@@ -32,6 +34,32 @@ const Requests = () => {
   const userType = localStorage.getItem("userType");
 
   useEffect(() => {
+    const fetchPatientData = async () => {
+      if (userType !== "patient" || !authToken) {
+        localStorage.clear();
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BASE_URL}/patient/dashboard`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch patient data');
+        }
+        
+        const data = await response.json();
+        setPatientData(data.patient || {});
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+        toast.error("Could not load your profile data");
+      }
+    };
+
     const fetchBloodHistory = async () => {
       setIsLoading(true);
       if (userType !== "patient" || !authToken) {
@@ -85,6 +113,7 @@ const Requests = () => {
       }
     };
 
+    fetchPatientData();
     fetchBloodHistory();
   }, [authToken, userType, navigate]);
 
@@ -129,6 +158,9 @@ const Requests = () => {
       <SectionTitle subtitle="Track your blood unit requests and their status">
         Blood Request History
       </SectionTitle>
+      
+      {/* Compatible Donor Finder */}
+      <CompatibleDonorFinder patientBloodType={patientData?.bloodGroup} />
 
       {/* Active Requests */}
       <div className="mb-10">
