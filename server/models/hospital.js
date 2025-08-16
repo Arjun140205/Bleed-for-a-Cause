@@ -9,6 +9,22 @@ const hospitalSchema = mongoose.Schema(
       minLength: 4,
       maxLength: 50,
     },
+    bloodStock: {
+      'A+': { type: Number, default: 0 },
+      'A-': { type: Number, default: 0 },
+      'B+': { type: Number, default: 0 },
+      'B-': { type: Number, default: 0 },
+      'AB+': { type: Number, default: 0 },
+      'AB-': { type: Number, default: 0 },
+      'O+': { type: Number, default: 0 },
+      'O-': { type: Number, default: 0 }
+    },
+    thalassemiaPriorityAlerts: [{
+      patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient' },
+      bloodType: { type: String, enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] },
+      urgencyLevel: { type: String, enum: ['LOW', 'MEDIUM', 'HIGH'], default: 'MEDIUM' },
+      requestedAt: { type: Date, default: Date.now }
+    }],
     emailId: {
       type: String,
       lowercase: true,
