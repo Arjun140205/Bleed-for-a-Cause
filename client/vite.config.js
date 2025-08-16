@@ -13,4 +13,21 @@ export default defineConfig({
       '/api': 'http://localhost:5000',
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'donor': [
+            './src/components/donor/DonorDashboard.jsx',
+            './src/components/donor/DonorProfile.jsx',
+            './src/components/donor/Donations.jsx',
+            './src/components/donor/EligibilityChecker.jsx'
+          ],
+          'hospital': ['./src/components/hospital/BloodRequestManagement.jsx'],
+          'patient': ['./src/components/patient/DiseaseStyled.jsx'],
+          'landing': ['./src/components/Landing/Eligibility.jsx']
+        }
+      }
+    }
+  }
 })
