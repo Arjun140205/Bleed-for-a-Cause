@@ -5,6 +5,7 @@ import BASE_URL from '../../apiConfig';
 import { toast } from 'react-toastify';
 import { AnimatedBlobs, GlassCard, SectionTitle, Button, PageLayout, InfoCard } from './PatientComponents';
 import TransfusionReminder from './TransfusionReminder';
+import { authenticatedFetch, isAuthenticated } from '../../utils/auth';
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
@@ -22,25 +23,26 @@ const PatientDashboard = () => {
   };
   
   useEffect(() => {
+    // Check authentication first
+    if (!isAuthenticated()) {
+      navigate('/auth');
+      return;
+    }
+
     // Fetch patient data
     const fetchPatientData = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await fetch(`${BASE_URL}/patient/dashboard`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch patient data');
-        }
-        
-        const data = await response.json();
+        const data = await authenticatedFetch(`${BASE_URL}/patient/dashboard`);
         setPatientData(data);
+        setError(null);
       } catch (error) {
-        setError('Failed to load dashboard data. Please try again.');
-        console.error(error);
+        console.error('Dashboard fetch error:', error);
+        if (error.message === 'Authentication required') {
+          navigate('/auth');
+        } else {
+          setError('Failed to load dashboard data. Please try again.');
+          toast.error('Failed to load dashboard data');
+        }
       } finally {
         setLoading(false);
       }
