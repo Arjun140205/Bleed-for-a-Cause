@@ -72,7 +72,7 @@ const Donations = () => {
     const fetchDonationHistory = async () => {
       if (userType !== "donor" || !authToken) {
         localStorage.clear();
-        navigate("/login");
+        navigate("/auth");
         return;
       }
 
@@ -81,8 +81,9 @@ const Donations = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`
           },
-          body: JSON.stringify({ token: authToken }),
+          body: JSON.stringify({ donorId: localStorage.getItem("userId") }),
         });
 
         const data = await response.json();
