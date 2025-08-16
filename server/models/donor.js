@@ -72,8 +72,32 @@ const donorSchema = mongoose.Schema(
       default: "",
     },
     lastDonationDate: {
-      type: String,
-      default: "",
+      type: Date,
+      default: null,
+    },
+    isEligibleToDonate: {
+      type: Boolean,
+      default: true,
+    },
+    donationFrequency: {
+      type: Number, // Number of donations in the last year
+      default: 0,
+    },
+    notificationPreferences: {
+      smsEnabled: {
+        type: Boolean,
+        default: false
+      },
+      emailEnabled: {
+        type: Boolean,
+        default: false
+      },
+      radius: {
+        type: Number,
+        default: 10, // Default radius in kilometers
+        min: 1,
+        max: 50
+      }
     },
     medicalCondition: {
       type: String,
@@ -101,6 +125,17 @@ const donorSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Virtual field for donations
+donorSchema.virtual('donations', {
+  ref: 'BloodDonation',
+  localField: '_id',
+  foreignField: 'donorId'
+});
+
+// Ensure virtuals are included when converting to JSON
+donorSchema.set('toJSON', { virtuals: true });
+donorSchema.set('toObject', { virtuals: true });
 
 const Donor = new mongoose.model("Donor", donorSchema);
 
