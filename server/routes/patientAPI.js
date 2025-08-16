@@ -7,6 +7,46 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const patientRouter = Router();
 
+// Endpoint to fetch request history
+patientRouter.post("/request-history", async (req, res) => {
+  try {
+    // Get token from authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Authentication token is required" 
+      });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const patientId = decoded.id;
+
+    // Fetch blood request history
+    const requests = await BloodRequest.find({ patientId })
+      .populate('hospital', 'name')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: requests
+    });
+  } catch (error) {
+    console.error('Error fetching request history:', error);
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid or expired token" 
+      });
+    }
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to fetch request history" 
+    });
+  }
+});
+
 // Endpoint to fetch patient dashboard data
 patientRouter.get("/dashboard", async (req, res) => {
   try {
