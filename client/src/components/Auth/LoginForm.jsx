@@ -5,6 +5,7 @@ import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import BASE_URL from "../../apiConfig";
+import { setAuthToken, setUserType } from '../../utils/auth';
 
 const LoginForm = ({ userType, onSuccess }) => {
   const navigate = useNavigate();
@@ -48,10 +49,10 @@ const LoginForm = ({ userType, onSuccess }) => {
         throw new Error("Invalid server response: Missing token or user type");
       }
 
-      // Save auth token and user type
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("userType", data.userType);
-      localStorage.setItem("userId", data.userId);
+      // Save auth token and user type using auth utility
+      setAuthToken(data.token);
+      setUserType(data.userType);
+      localStorage.setItem("userId", data.userId); // Keep this in localStorage for now
 
       toast.success("Login successful!");
       
