@@ -1,5 +1,42 @@
 import validator from "validator";
 
+// Valid blood types
+export const VALID_BLOOD_TYPES = ['a+', 'a-', 'b+', 'b-', 'ab+', 'ab-', 'o+', 'o-'];
+
+/**
+ * Normalize blood type format
+ * @param {string} type - Blood type to normalize
+ * @returns {string|null} - Normalized blood type or null if invalid
+ */
+export const normalizeBloodType = (type) => {
+  if (!type) return null;
+  const normalized = type.toString().toLowerCase().replace(/\s+/g, '');
+  return VALID_BLOOD_TYPES.includes(normalized) ? normalized : null;
+};
+
+/**
+ * Validate geographic coordinates
+ * @param {number} lat - Latitude
+ * @param {number} lng - Longitude
+ * @returns {boolean} - Whether coordinates are valid
+ */
+export const validateCoordinates = (lat, lng) => {
+  const validLat = typeof lat === 'number' && lat >= -90 && lat <= 90;
+  const validLng = typeof lng === 'number' && lng >= -180 && lng <= 180;
+  return validLat && validLng;
+};
+
+/**
+ * Validate date format and range
+ * @param {string} date - Date string to validate
+ * @returns {boolean} - Whether date is valid
+ */
+export const validateDate = (date) => {
+  const parsedDate = new Date(date);
+  const now = new Date();
+  return parsedDate instanceof Date && !isNaN(parsedDate) && parsedDate <= now;
+};
+
 const validateSignupData = (req, userType) => {
   if (userType === "patient") {
     const { name, emailId, password, phoneNumber, age } = req.body;
