@@ -18,11 +18,11 @@ const BloodRequestManagement = () => {
     setError(null);
     try {
       const response = await fetch(`${BASE_URL}/hospital/api/bloodRequests`, {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token: localStorage.getItem("authToken") }),
+          "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+        }
       });
 
       if (!response.ok) {
@@ -47,10 +47,10 @@ const BloodRequestManagement = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("authToken")}`
           },
           body: JSON.stringify({
-            token: localStorage.getItem("authToken"),
-            status: status,
+            status: status
           }),
         }
       );
