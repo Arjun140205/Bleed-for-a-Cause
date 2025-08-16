@@ -1,121 +1,147 @@
-import jwt from "jsonwebtoken";
 import { Router } from "express";
 import Donor from "../models/donor.js";
 import { findCompatibleDonors } from "../utils/donorMatching.js";
-const donorRouter = Router();
+import { calculateEligibility, sendDonationNotification } from "../utils/donorUtils.js";
+import { normalizeBloodType, validateCoordinates } from "../utils/donorValidation.js";
 
-const JWT_SECRET = process.env.JWT_SECRET; 
+const donorRouter = Router();
 
 // Check if donor information is missing
 donorRouter.post("/checkInfo", async (req, res) => {
-  const { token } = req.body;
-  let user;
-
-  if (!token) {
-    return res.status(400).json({ error: "Token is required" });
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    user = await Donor.findById(decoded.id).select("-password");
-
-    console.log(user);
-    
-
-    if (!user.bloodType || !user.lastDonationDate || !user.state || !user.district) {
-      return res.json({ missing: true });
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required"
+      });
     }
 
-    res.json({ missing: false, user });
+    const donorId = req.user.id; // From auth middleware
+    const user = await Donor.findById(donorId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Donor not found"
+      });
+    }
+
+    const missing = !user.bloodType || !user.lastDonationDate || !user.state || !user.district;
+
+    res.json({
+      success: true,
+      missing,
+      user: missing ? null : user
+    });
   } catch (error) {
-    console.error(error)
-    res.status(401).json({ error: "Invalid or expired token" });
+    console.error("Error checking donor info:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch donor information"
+    });
   }
 });
 
 // Update donor info
 donorRouter.post("/updateInfo", async (req, res) => {
-  const { token, bloodType, lastDonationDate, state, district, medicalCondition } = req.body;
-
-  if (!token) {
-    return res.status(400).json({ error: "Token is required" });
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    
-    const updatedUser = await Donor.updateOne(
-      { _id: decoded.id }, // Find donor by ID
-      {
-        $set: {
-          bloodType,
-          lastDonationDate,
-          state,
-          district,
-          medicalCondition,
-        },
-      }
-    );
-    
+    const donorId = req.user.id; // From auth middleware
+    const { bloodType, lastDonationDate, state, district, medicalCondition } = req.body;
 
-    if (updatedUser.matchedCount === 0) {
-      return res.status(404).json({ error: "User not found" });
+    // Validate required fields
+    if (!bloodType || !lastDonationDate || !state || !district) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      });
     }
 
-    res.json({ success: true });
+    // Validate blood type
+    const normalizedBloodType = normalizeBloodType(bloodType);
+    if (!normalizedBloodType) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid blood type format"
+      });
+    }
+
+    // Validate date
+    const donationDate = new Date(lastDonationDate);
+    if (isNaN(donationDate) || donationDate > new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid donation date"
+      });
+    }
+
+    const updatedUser = await Donor.findByIdAndUpdate(
+      donorId,
+      {
+        bloodType: normalizedBloodType,
+        lastDonationDate: donationDate,
+        state,
+        district,
+        medicalCondition
+      },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "Donor not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      user: updatedUser
+    });
   } catch (error) {
-    console.error(error)
-    res.status(401).json({ error: "Invalid or expired token" });
+    console.error("Error updating donor info:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error while updating donor information"
+    });
+    console.error("Error updating donor info:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update donor information"
+    });
   }
 });
 
 // Get donation history
 donorRouter.post("/history", async (req, res) => {
-  const { token } = req.body;
-
-  if (!token) {
-    return res.status(400).json({ error: "Token is required" });
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const donor = await Donor.findById(decoded.id).select("-password");
+    const donorId = req.user.id; // From auth middleware
+    const donor = await Donor.findById(donorId)
+      .select("-password")
+      .populate('donations')
+      .populate('appointments');
     
     if (!donor) {
-      return res.status(404).json({ error: "Donor not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Donor not found"
+      });
     }
 
-    // Return sample donation history and appointments
+    // Fetch actual donations and appointments from the database
+    const donations = donor.donations || [];
+    const appointments = donor.appointments || [];
+
     res.json({ 
       success: true,
-      donations: [
-        {
-          date: '2023-08-15',
-          location: 'Lifesaving Medical Center',
-          units: 1,
-          bloodType: 'A+',
-          status: 'Completed'
-        },
-        {
-          date: '2023-10-27',
-          location: 'Blood Donation Drive - Community Hall',
-          units: 1,
-          bloodType: 'A+',
-          status: 'Completed'
-        }
-      ],
-      appointments: [
-        {
-          date: '2024-01-20',
-          time: '10:30 AM',
-          location: 'Central Hospital',
-          status: 'Scheduled'
-        }
-      ]
+      donations,
+      appointments
     });
   } catch (error) {
     console.error("Error fetching donation history:", error);
-    res.status(401).json({ error: "Invalid or expired token" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch donation history"
+    });
   }
 });
 
@@ -126,7 +152,7 @@ donorRouter.post("/history", async (req, res) => {
  */
 donorRouter.post("/find-compatible", async (req, res) => {
   try {
-    const { bloodType, location, authToken } = req.body;
+    const { bloodType, location, page = 1, limit = 10 } = req.body;
     
     if (!bloodType || !location || !location.lat || !location.lng) {
       return res.status(400).json({
@@ -135,37 +161,55 @@ donorRouter.post("/find-compatible", async (req, res) => {
       });
     }
 
-    // Verify user authentication (optional)
-    if (authToken) {
-      try {
-        jwt.verify(authToken, JWT_SECRET);
-        // You could extract patient ID here if needed
-      } catch (error) {
-        return res.status(401).json({
-          success: false,
-          message: "Invalid or expired token"
-        });
-      }
+    // Validate blood type format
+    const normalizedBloodType = normalizeBloodType(bloodType);
+    if (!normalizedBloodType) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid blood type format"
+      });
     }
 
-    // Get all donors
+    // Validate coordinates
+    if (!validateCoordinates(location.lat, location.lng)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid coordinates"
+      });
+    }
+
+    // Validate page and limit
+    if (page < 1 || limit < 1 || limit > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pagination parameters"
+      });
+    }
+
+    // Get all eligible donors with location data
     const allDonors = await Donor.find({
       bloodType: { $exists: true },
-      'location.coordinates.0': { $ne: 0 }, // Only donors with location data
+      isEligibleToDonate: true,
+      'location.coordinates.0': { $ne: 0 },
       'location.coordinates.1': { $ne: 0 }
-    });
+    }).select('name bloodType location district state notificationPreferences');
 
-    // Find compatible donors within 10km radius
+    // Find compatible donors within radius
     const compatibleDonors = findCompatibleDonors(
       allDonors,
-      bloodType,
+      normalizedBloodType,
       location.lat,
       location.lng,
       10 // Max 10km radius
     );
 
+    // Apply pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const paginatedDonors = compatibleDonors.slice(startIndex, endIndex);
+
     // Return limited information about donors
-    const safeDonerInfo = compatibleDonors.map(donor => ({
+    const safeDonerInfo = paginatedDonors.map(donor => ({
       name: donor.name,
       bloodType: donor.bloodType,
       distance: donor.distance,
@@ -175,7 +219,12 @@ donorRouter.post("/find-compatible", async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      count: safeDonerInfo.length,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(compatibleDonors.length / limit),
+        totalDonors: compatibleDonors.length,
+        hasMore: endIndex < compatibleDonors.length
+      },
       donors: safeDonerInfo
     });
   } catch (error) {
@@ -183,6 +232,172 @@ donorRouter.post("/find-compatible", async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error while finding donors"
+    });
+  }
+});
+
+/**
+ * @route   GET /api/donor/eligibility
+ * @desc    Check donor's eligibility to donate
+ * @access  Private
+ */
+donorRouter.get("/eligibility", async (req, res) => {
+  try {
+    const donorId = req.user.id; // From auth middleware
+
+    const donor = await Donor.findById(donorId);
+    if (!donor) {
+      return res.status(404).json({
+        success: false,
+        message: "Donor not found"
+      });
+    }
+
+    const eligibilityStatus = calculateEligibility(donor.lastDonationDate);
+    
+    // Update donor's eligibility status
+    donor.isEligibleToDonate = eligibilityStatus.isEligible;
+    await donor.save();
+
+    res.status(200).json({
+      success: true,
+      eligibility: eligibilityStatus
+    });
+
+  } catch (error) {
+    console.error("Error checking eligibility:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error checking eligibility status"
+    });
+  }
+});
+
+/**
+ * @route   POST /api/donor/notify-for-thalassemia
+ * @desc    Notify eligible donors near patient's location
+ * @access  Private
+ */
+donorRouter.post("/notify-for-thalassemia", async (req, res) => {
+  try {
+    const { location, bloodType } = req.body;
+
+    if (!location || !bloodType) {
+      return res.status(400).json({
+        success: false,
+        message: "Location and blood type are required"
+      });
+    }
+
+    // Validate blood type
+    const normalizedBloodType = normalizeBloodType(bloodType);
+    if (!normalizedBloodType) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid blood type format"
+      });
+    }
+
+    // Validate location
+    if (!location.lat || !location.lng || !validateCoordinates(location.lat, location.lng)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid location coordinates"
+      });
+    }
+
+    // Find eligible donors within radius
+    const eligibleDonors = await Donor.find({
+      isEligibleToDonate: true,
+      'location.coordinates': {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [location.lng, location.lat]
+          },
+          $maxDistance: 10000 // 10 km in meters
+        }
+      },
+      'notificationPreferences.emailEnabled': true
+    });
+
+    // Filter for compatible blood types and send notifications
+    const compatibleDonors = findCompatibleDonors(
+      eligibleDonors,
+      bloodType,
+      location.lat,
+      location.lng,
+      10
+    );
+
+    // Send notifications
+    const notificationPromises = compatibleDonors.map(donor =>
+      sendDonationNotification(donor, { bloodType, location })
+    );
+
+    await Promise.all(notificationPromises);
+
+    res.status(200).json({
+      success: true,
+      message: `Notifications sent to ${compatibleDonors.length} eligible donors`
+    });
+
+  } catch (error) {
+    console.error("Error notifying donors:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error sending notifications to donors"
+    });
+  }
+});
+
+/**
+ * @route   POST /api/donor/update-preferences
+ * @desc    Update donor's notification preferences
+ * @access  Private
+ */
+donorRouter.post("/update-preferences", async (req, res) => {
+  try {
+    const donorId = req.user.id; // From auth middleware
+    const { smsEnabled, emailEnabled, radius } = req.body;
+
+    // Validate inputs
+    if (typeof smsEnabled !== 'boolean' || typeof emailEnabled !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: "SMS and email enabled flags must be boolean values"
+      });
+    }
+
+    // Validate radius
+    if (typeof radius !== 'number' || radius < 1 || radius > 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Radius must be between 1 and 50 kilometers"
+      });
+    }
+
+    const updatedDonor = await Donor.findByIdAndUpdate(
+      donorId,
+      {
+        'notificationPreferences.smsEnabled': smsEnabled,
+        'notificationPreferences.emailEnabled': emailEnabled,
+        'notificationPreferences.radius': radius
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Preferences updated successfully",
+      preferences: updatedDonor.notificationPreferences
+    });
+
+  } catch (error) {
+    console.error("Error updating preferences:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating notification preferences"
     });
   }
 });
