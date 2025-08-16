@@ -4,10 +4,12 @@ import { FaDna, FaInfoCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import BASE_URL from '../../apiConfig';
 import { GlassCard, SectionTitle, Button, PageLayout } from './PatientComponents';
+import { useNavigate } from 'react-router-dom';
 
 const ThalassemiaRiskPredictor = () => {
-  const [motherStatus, setMotherStatus] = useState('');
-  const [fatherStatus, setFatherStatus] = useState('');
+  const navigate = useNavigate();
+  const [motherStatus, setMotherStatus] = useState('normal');
+  const [fatherStatus, setFatherStatus] = useState('normal');
   const [prediction, setPrediction] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,26 +20,46 @@ const ThalassemiaRiskPredictor = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${BASE_URL}/api/thalassemia/risk`, {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        toast.error('Please log in to use this feature');
+        navigate('/auth');
+        return;
+      }
+
+      const response = await fetch(`${BASE_URL}/thalassemia/risk`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ motherStatus, fatherStatus }),
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          toast.error('Session expired. Please login again.');
+          navigate('/auth');
+          return;
+        }
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to get risk prediction");
       }
 
       const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message || "Failed to calculate risk");
+      }
       setPrediction(data.result);
       toast.success("Risk prediction calculated successfully!");
     } catch (error) {
       console.error("Error getting thalassemia risk prediction:", error);
+      if (error.message.includes('JSON')) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(error.message || "Failed to calculate risk. Please try again.");
+      }
       setError(error.message || "Failed to calculate risk. Please try again.");
-      toast.error("Failed to calculate risk. Please try again.");
     } finally {
       setIsLoading(false);
     }
