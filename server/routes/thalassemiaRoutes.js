@@ -4,10 +4,10 @@ import { calculateThalassemiaRisk } from "../controllers/thalassemiaController.j
 const thalassemiaRouter = Router();
 
 /**
- * @route   POST /api/thalassemia/risk
+ * @route   POST /thalassemia/risk
  * @desc    Calculate risk of thalassemia in offspring based on parents' status
- * @access  Public
+ * @access  Private
  */
-thalassemiaRouter.post("/api/thalassemia/risk", calculateThalassemiaRisk);
+thalassemiaRouter.post("/risk", calculateThalassemiaRisk);
 
 export default thalassemiaRouter;
