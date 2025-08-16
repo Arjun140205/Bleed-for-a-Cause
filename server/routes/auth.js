@@ -132,7 +132,20 @@ authRouter.post("/login/:userType", async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.status(200).json({ message: "Login successful", token, userType, userId: user._id });
+    // Include basic user info in the response
+    const userData = {
+      id: user._id,
+      name: user.name,
+      email: user.emailId
+    };
+    
+    res.status(200).json({ 
+      message: "Login successful", 
+      token, 
+      userType, 
+      userId: user._id,
+      userData
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
