@@ -4,6 +4,7 @@ import BloodDemand from "../models/bloodDemand.js";
 import Haemoglobin from "../models/haemoglobin.js";
 import DiseaseDataset from "../models/diseaseDataset.js";
 import mongoose from "mongoose";
+import { commonSymptoms } from "../data/symptomsData.js";
 
 const apiRouter = Router();
 
@@ -41,6 +42,22 @@ apiRouter.get("/api/predict/bloodDemand", async (req, res) => {
     res.json({ predictions });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Get available symptoms
+apiRouter.get("/api/symptoms", (req, res) => {
+  try {
+    res.json({ 
+      success: true,
+      symptoms: commonSymptoms
+    });
+  } catch (error) {
+    console.error("Error fetching symptoms:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to fetch symptoms" 
+    });
   }
 });
 
