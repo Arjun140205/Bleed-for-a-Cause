@@ -62,27 +62,37 @@ const Requests = () => {
 
     const fetchBloodHistory = async () => {
       setIsLoading(true);
-      if (userType !== "patient" || !authToken) {
-        localStorage.clear();
+      if (userType !== "patient") {
         navigate("/login");
         return;
       }
 
       try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          throw new Error('Authentication token is required');
+        }
+
         const response = await fetch(
           `${BASE_URL}/patient/request-history`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify({ authToken }),
+            body: JSON.stringify({ patientId: localStorage.getItem('userId') }),
           }
         );
 
         const data = await response.json();
 
         if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.clear();
+            navigate("/auth");
+            throw new Error('Authentication required');
+          }
           throw new Error(data.message || "Failed to fetch blood history");
         }
 
@@ -103,11 +113,15 @@ const Requests = () => {
           setActiveRequests(active);
           setRequestHistory(history);
         } else {
-          toast.error("Failed to process request history");
+          throw new Error("Failed to process request history");
         }
       } catch (error) {
         console.error("Error fetching history:", error);
-        toast.error("Error fetching request history");
+        if (error.message === "Authentication required") {
+          navigate("/auth");
+        } else {
+          toast.error(error.message || "Error fetching request history");
+        }
       } finally {
         setIsLoading(false);
       }
