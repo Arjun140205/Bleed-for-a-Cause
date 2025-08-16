@@ -25,19 +25,44 @@ const Disease = () => {
   useEffect(() => {
     // Fetch available symptoms from backend
     const fetchSymptoms = async () => {
+      let currentResponse;
       try {
-        const response = await fetch(`${BASE_URL}/api/symptoms`);
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+          throw new Error("Authentication required");
+        }
+
+        currentResponse = await fetch(`${BASE_URL}/api/symptoms`, {
+          headers: {
+            "Authorization": `Bearer ${authToken}`
+          }
+        });
         
-        if (!response.ok) {
+        if (!currentResponse.ok) {
+          if (currentResponse.status === 404) {
+            // If the symptoms endpoint is not found, use fallback symptoms
+            throw new Error("Symptoms service unavailable");
+          }
+          if (currentResponse.status === 401) {
+            localStorage.clear();
+            window.location.href = '/auth';
+            throw new Error("Authentication required");
+          }
           throw new Error("Failed to fetch symptoms");
         }
         
-        const data = await response.json();
+        const data = await currentResponse.json();
+        if (!data.symptoms) {
+          throw new Error("Invalid response format");
+        }
         setAvailableSymptoms(data.symptoms);
       } catch (error) {
         console.error("Error fetching symptoms:", error);
-        setError("Failed to load symptom data. Please try again later.");
-        
+        if (error.message === "Authentication required") {
+          window.location.href = '/auth';
+          return;
+        }
+        setError("Failed to load symptom data. Using offline data.");
         // Fallback to common symptoms if API fails
         const commonSymptoms = [
           "fever", "headache", "cough", "fatigue", "nausea", 
