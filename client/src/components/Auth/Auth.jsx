@@ -191,7 +191,7 @@ function Auth() {
     };
 
     try {
-      const response = await fetch(`${BASE_URL}/login/patient`, {
+      const response = await fetch(`${BASE_URL}/auth/login/patient`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -208,6 +208,7 @@ function Auth() {
           localStorage.clear();
           localStorage.setItem("authToken", data.token);
           localStorage.setItem("userType", data.userType);
+          localStorage.setItem("userData", JSON.stringify(data.userData));
         }
 
         Swal.fire({
