@@ -62,14 +62,21 @@ const PatientDashboard = () => {
   ];
 
   useEffect(() => {
-    const verifyUser = async () => {
+    const initializeUser = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        if (!token) {
+        const storedUserData = localStorage.getItem('userData');
+        
+        if (!token || !storedUserData) {
           navigate('/login');
           return;
         }
 
+        // First set the stored data for immediate display
+        setUserData(JSON.parse(storedUserData));
+        setIsLoading(false);
+
+        // Then verify and update from server
         const response = await fetch(`${BASE_URL}/auth/verify/patient`, {
           method: 'POST',
           headers: {
@@ -81,6 +88,8 @@ const PatientDashboard = () => {
         const data = await response.json();
         if (response.ok) {
           setUserData(data.user);
+          // Update stored user data
+          localStorage.setItem('userData', JSON.stringify(data.user));
         } else {
           throw new Error(data.message);
         }
@@ -88,12 +97,10 @@ const PatientDashboard = () => {
         console.error('Authentication error:', error);
         toast.error('Please login again');
         navigate('/login');
-      } finally {
-        setIsLoading(false);
       }
     };
 
-    verifyUser();
+    initializeUser();
   }, [navigate]);
 
   // Clear city when state changes
