@@ -1,5 +1,5 @@
-import { forwardRef } from 'react';
-import { motion } from 'framer-motion';
+import { forwardRef, useRef, useState } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 const StarButton = forwardRef(({ 
   className = "",
@@ -11,42 +11,69 @@ const StarButton = forwardRef(({
   to,
   ...props 
 }, ref) => {
-  const defaultColor = color || "#991b1b"; // red-800
+
+  // For animated hover gradient
+  const btnRef = useRef(null);
+  const [hovered, setHovered] = useState(false);
+  const [mouseX, setMouseX] = useState(0);
+  const x = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 300, damping: 30 });
+
+  const handleMouseMove = (e) => {
+    if (!btnRef.current) return;
+    const rect = btnRef.current.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    setMouseX(relX);
+    x.set(relX);
+  };
+
+  const handleMouseEnter = () => setHovered(true);
+  const handleMouseLeave = () => setHovered(false);
 
   const content = (
     <>
-      {/* Background glow on hover */}
-      <div 
-        className={`absolute inset-0 rounded-full transition-all duration-200 ${
-          isActive ? 'opacity-10' : 'opacity-0 group-hover:opacity-5'
-        }`}
-        style={{
-          background: `radial-gradient(circle at center, ${defaultColor} 0%, transparent 70%)`
-        }}
-      />
+      {/* No filled background for active, only hover effect */}
+      {hovered && !isActive && (
+        <motion.div
+          className="absolute inset-0 rounded-full pointer-events-none"
+          style={{
+            background: `radial-gradient(circle at ${mouseX}px 50%, #fca5a5 0%, #ef4444 40%, transparent 70%)`,
+            opacity: 0.18
+          }}
+          animate={{ opacity: 0.18 }}
+          transition={{ duration: 0.2 }}
+        />
+      )}
       {/* Border */}
       <div 
-        className={`absolute inset-0 rounded-full border transition-colors duration-200
-          ${isActive 
-            ? 'border-red-700/40' 
-            : 'border-red-700/30'
-          }
-        `}
+        className={`absolute inset-0 rounded-full border-2 transition-colors duration-200 border-red-600 group-hover:border-red-600`}
       />
       {/* Content */}
-      <div className="relative px-5 py-2 z-10 text-center min-w-[90px] text-red-700/90 transition-transform duration-200 group-hover:scale-105">
+      <div className={`relative px-5 py-2 z-10 text-center min-w-[90px] font-semibold transition-all duration-200 group-hover:scale-110 ${isActive ? 'text-red-600' : 'text-red-600 group-hover:text-white'}`}>
         {children}
       </div>
-      {/* Active state glow */}
+      {/* Animated gradient underline for active */}
       {isActive && (
-        <div 
-          className="absolute -inset-[2px] rounded-full opacity-20"
+        <motion.div
+          layoutId="nav-underline"
+          className="absolute left-4 right-4 bottom-1 h-1 rounded-full pointer-events-none"
           style={{
-            background: `radial-gradient(circle at center,
-              ${defaultColor} 0%,
-              transparent 70%
-            )`
+            background: 'linear-gradient(90deg, #f87171 0%, #ef4444 100%)',
+            boxShadow: '0 2px 16px 0 #ef444488',
+            opacity: 0.7
           }}
+        />
+      )}
+      {/* Mouse-following hover gradient */}
+      {hovered && !isActive && (
+        <motion.div
+          className="absolute inset-0 rounded-full pointer-events-none"
+          style={{
+            background: `radial-gradient(circle at ${mouseX}px 50%, #fca5a5 0%, #ef4444 40%, transparent 70%)`,
+            opacity: 0.18
+          }}
+          animate={{ opacity: 0.18 }}
+          transition={{ duration: 0.2 }}
         />
       )}
     </>
@@ -56,11 +83,14 @@ const StarButton = forwardRef(({
     // Render as e.g. <Link>
     return (
       <motion.div
-        ref={ref}
+        ref={btnRef}
         className={`group relative inline-flex items-center justify-center ${className}`}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         {...props}
       >
         <Component to={to} onClick={onClick} className="w-full h-full contents">
@@ -73,7 +103,7 @@ const StarButton = forwardRef(({
   // Default: render as button
   return (
     <motion.button 
-      ref={ref}
+      ref={btnRef}
       onClick={onClick}
       className={`group relative inline-flex items-center justify-center ${className}`}
       whileHover={{ scale: 1.05 }}
@@ -82,6 +112,9 @@ const StarButton = forwardRef(({
         duration: 0.2,
         ease: [0.25, 0.1, 0.25, 1]
       }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       {...props}
     >
       {content}
