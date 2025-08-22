@@ -289,7 +289,7 @@ function Auth() {
             timer: 2000,
           });
           // window.location.reload();
-          navigate("/login");
+          navigate("/patient");
         }, 3000);
       } else {
         console.error("Signup failed:", data.message);
@@ -404,7 +404,7 @@ function Auth() {
             timer: 2000,
           });
           // window.location.reload();
-          navigate("/login");
+          navigate("/donor");
         }, 3000);
       } else {
         console.error("Signup failed:", data.message);
@@ -524,7 +524,7 @@ function Auth() {
             timer: 2000,
           });
           // window.location.reload();
-          navigate("/login");
+          navigate("/hospital");
         }, 3000);
       } else {
         console.error("Signup failed:", data.message);
