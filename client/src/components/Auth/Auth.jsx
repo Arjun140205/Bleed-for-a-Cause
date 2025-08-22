@@ -521,7 +521,7 @@ function Auth() {
             html: "<strong>Redirecting...</strong>",
             timer: 2000,
           });
-          window.location.reload();
+          // window.location.reload();
         }, 3000);
       } else {
         console.error("Signup failed:", data.message);
