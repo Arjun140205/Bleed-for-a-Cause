@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { FaChartPie, FaCalendarCheck, FaUserMd, FaClipboardList, FaHeartbeat, FaVial } from 'react-icons/fa';
 import BASE_URL from '../../apiConfig';
@@ -10,6 +11,7 @@ import { authenticatedFetch, isAuthenticated } from '../../utils/auth';
 const PatientDashboard = () => {
   const navigate = useNavigate();
   const [patientData, setPatientData] = useState(null);
+  const user = useSelector((state) => state.user.user);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -97,11 +99,11 @@ const PatientDashboard = () => {
           <GlassCard className="p-8">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-5xl font-bold flex-shrink-0">
-                {patientData.name ? patientData.name[0].toUpperCase() : 'P'}
+                {(user?.name || patientData?.name || 'P')[0].toUpperCase()}
               </div>
               
               <div className="text-center md:text-left">
-                <h2 className="text-3xl font-bold text-gray-800">Welcome back, {patientData.name}</h2>
+                <h2 className="text-3xl font-bold text-gray-800">Welcome back, {user?.name || patientData?.name}</h2>
                 
                 <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
@@ -111,7 +113,7 @@ const PatientDashboard = () => {
                   
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                     <FaUserMd className="mr-1" />
-                    Patient ID: {patientData._id?.slice(-6) || 'P12345'}
+                    Patient ID: {(user?._id || patientData?._id || 'P12345').slice(-6)}
                   </span>
                   
                   {patientData.upcomingAppointment && (
