@@ -26,7 +26,8 @@ app.use(
       "http://localhost:5175",
       "http://127.0.0.1:5173",
       "http://127.0.0.1:5174",
-      "http://127.0.0.1:5175"
+      "http://127.0.0.1:5175",
+      "https://bleed-for-a-cause-client.vercel.app"
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
