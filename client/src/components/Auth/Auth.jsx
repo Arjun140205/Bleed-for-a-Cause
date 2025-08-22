@@ -289,6 +289,7 @@ function Auth() {
             timer: 2000,
           });
           // window.location.reload();
+          navigate("/login");
         }, 3000);
       } else {
         console.error("Signup failed:", data.message);
@@ -403,6 +404,7 @@ function Auth() {
             timer: 2000,
           });
           // window.location.reload();
+          navigate("/login");
         }, 3000);
       } else {
         console.error("Signup failed:", data.message);
@@ -522,6 +524,7 @@ function Auth() {
             timer: 2000,
           });
           // window.location.reload();
+          navigate("/login");
         }, 3000);
       } else {
         console.error("Signup failed:", data.message);
