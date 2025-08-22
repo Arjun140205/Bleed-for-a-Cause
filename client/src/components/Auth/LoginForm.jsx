@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../store/userSlice';
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -9,6 +11,7 @@ import { setAuthToken, setUserType } from '../../utils/auth';
 
 const LoginForm = ({ userType, onSuccess }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -54,8 +57,11 @@ const LoginForm = ({ userType, onSuccess }) => {
       setUserType(data.userType);
       localStorage.setItem("userId", data.userId); // Keep this in localStorage for now
 
+      // Dispatch user info to Redux
+      dispatch(setUser({ user: data.user, userType: data.userType }));
+
       toast.success("Login successful!");
-      
+
       // Navigate to the appropriate dashboard based on userType
       let dashboardPath;
       switch (userType.toLowerCase()) {
@@ -72,7 +78,7 @@ const LoginForm = ({ userType, onSuccess }) => {
           dashboardPath = '/';
       }
       navigate(dashboardPath, { replace: true });
-      
+
       // Call the onSuccess function if it exists
       if (onSuccess) {
         onSuccess(data.token, data.userType);
