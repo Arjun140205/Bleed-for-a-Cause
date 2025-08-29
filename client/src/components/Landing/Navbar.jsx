@@ -167,7 +167,7 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="sm:hidden bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl backdrop-saturate-150"
+            className="sm:hidden bg-white/95 backdrop-blur-xl backdrop-saturate-150 border-t border-gray-100"
           >
             <div className="px-4 py-4 space-y-2">
               {navItems.map((item) => (
@@ -177,8 +177,8 @@ const Navbar = () => {
                   to={getNavPath(item)}
                   className={`group w-full text-base !py-2 !px-4 ${
                     location.pathname === getNavPath(item)
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-gray-600 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-400"
+                      ? "text-red-600 font-semibold"
+                      : "text-gray-700 hover:text-red-600"
                   }`}
                   color="#ef4444"
                   speed="4s"
