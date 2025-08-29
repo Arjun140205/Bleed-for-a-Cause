@@ -5,9 +5,9 @@ import { FaGithub, FaTwitter, FaInstagram, FaLinkedin, FaHeart } from "react-ico
 const Footer = () => {
   const links = [
     { title: "About Us", url: "/about" },
-    { title: "Blog", url: "/blog" },
-    { title: "Careers", url: "/careers" },
-    { title: "Privacy Policy", url: "/privacy" },
+    { title: "Campaigns", url: "/campaigns" },
+    { title: "Banks", url: "/banks" },
+    { title: "FAQ", url: "/faq" },
   ];
 
   const socialLinks = [
