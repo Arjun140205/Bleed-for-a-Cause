@@ -56,11 +56,11 @@ const StarButton = forwardRef(({
       {isActive && (
         <motion.div
           layoutId="nav-underline"
-          className="absolute left-4 right-4 bottom-1 h-1 rounded-full pointer-events-none"
+          className="absolute left-4 right-4 bottom-1 h-0.5 rounded-full pointer-events-none"
           style={{
-            background: 'linear-gradient(90deg, #f87171 0%, #ef4444 100%)',
-            boxShadow: '0 2px 16px 0 #ef444488',
-            opacity: 0.7
+            background: 'linear-gradient(90deg, #dc2626 0%, #dc2626 100%)',
+            boxShadow: '0 1px 8px 0 #dc262644',
+            opacity: 0.9
           }}
         />
       )}
