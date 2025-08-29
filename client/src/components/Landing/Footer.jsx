@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaHeart } from "react-icons/fa";
+import { FaGithub, FaTwitter, FaInstagram, FaLinkedin, FaHeart } from "react-icons/fa";
 
 const Footer = () => {
   const links = [
@@ -11,10 +11,10 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: <FaFacebook />, url: "#" },
-    { icon: <FaTwitter />, url: "#" },
-    { icon: <FaInstagram />, url: "#" },
-    { icon: <FaLinkedin />, url: "#" },
+    { icon: <FaGithub />, url: "https://github.com/Arjun140205" },
+    { icon: <FaTwitter />, url: "https://x.com/Arjunbir_singhh" },
+    { icon: <FaInstagram />, url: "https://www.instagram.com/arjunbir_singhh/" },
+    { icon: <FaLinkedin />, url: "https://www.linkedin.com/in/arjunbir-singh/" },
   ];
 
   const containerVariants = {
