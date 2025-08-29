@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useTheme } from "../../ThemeContext";
-import { FaMoon, FaSun } from "react-icons/fa";
 import StarButton from "../ui/StarButton";
 
 const Navbar = () => {
@@ -13,7 +11,6 @@ const Navbar = () => {
   const [userType, setUserType] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -121,18 +118,6 @@ const Navbar = () => {
                 </StarButton>
               );
             })}
-
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full transition-all duration-200 hover:scale-110 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              {theme === "dark" ? (
-                <FaSun className="h-5 w-5 text-yellow-400" />
-              ) : (
-                <FaMoon className="h-5 w-5 text-gray-600" />
-              )}
-            </button>
 
             {/* Auth Buttons */}
             {isLoggedIn ? (
