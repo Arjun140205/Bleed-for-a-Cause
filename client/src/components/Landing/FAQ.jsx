@@ -1,10 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import ListItem from "../ui/ListItem";
+
+// Animated SVG Red Blobs for background
+const AnimatedBlobs = ({ mouse }) => (
+  <div className="pointer-events-none fixed inset-0 z-0">
+    <motion.svg
+      width="100vw"
+      height="100vh"
+      viewBox="0 0 1440 900"
+      className="absolute top-0 left-0 w-full h-full"
+      style={{ filter: 'blur(60px)', opacity: 0.35 }}
+    >
+      <motion.ellipse
+        cx={400 + (mouse.x || 0) * 0.1}
+        cy={300 + (mouse.y || 0) * 0.1}
+        initial={{ rx: 320, ry: 180 }}
+        animate={{
+          rx: [320, 340, 320],
+          ry: [180, 200, 180],
+        }}
+        fill="url(#red1)"
+        transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
+      />
+      <motion.ellipse
+        cx={1100 - (mouse.x || 0) * 0.08}
+        cy={600 - (mouse.y || 0) * 0.08}
+        initial={{ rx: 220, ry: 120 }}
+        animate={{
+          rx: [220, 250, 220],
+          ry: [120, 140, 120],
+        }}
+        fill="url(#red2)"
+        transition={{ repeat: Infinity, duration: 10, ease: 'easeInOut' }}
+      />
+      <defs>
+        <radialGradient id="red1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ff4d4f" />
+          <stop offset="100%" stopColor="#b91c1c" />
+        </radialGradient>
+        <radialGradient id="red2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#f87171" />
+          <stop offset="100%" stopColor="#991b1b" />
+        </radialGradient>
+      </defs>
+    </motion.svg>
+  </div>
+);
 
 const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeCategory, setActiveCategory] = useState('donors');
+  
+  // Mouse position for parallax effect
+  const mouse = useRef({ x: 0, y: 0 });
+  const handleMouseMove = (e) => {
+    mouse.current = {
+      x: e.clientX - window.innerWidth / 2,
+      y: e.clientY - window.innerHeight / 2,
+    };
+  };
+
+  // For glassmorphism card style
+  const glass = 'bg-white/30 backdrop-blur-lg border border-red-200/40 shadow-2xl shadow-red-200/30';
 
   const faqCategories = {
     donors: {
@@ -123,94 +182,140 @@ const FAQ = () => {
 
   return (
     <div
-      className="min-h-screen py-16 px-4 sm:px-6 lg:px-8"
-      style={{
-        background: "var(--bg-main)",
-        color: "var(--text-main)"
-      }}
+      className="relative min-h-screen py-20 px-4 sm:px-6 lg:px-8 overflow-x-hidden"
+      style={{ background: 'var(--bg-main)', color: 'var(--text-main)' }}
+      onMouseMove={handleMouseMove}
     >
-      <div className="max-w-4xl mx-auto">
-        <h1
-          className="text-4xl font-bold mb-8 text-center mt-12"
-          style={{ color: "var(--accent)" }}
+      <AnimatedBlobs mouse={mouse.current} />
+      <div className="relative z-10 max-w-4xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
         >
-          Frequently Asked Questions
-        </h1>
+          <motion.div
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="bg-gradient-to-r from-red-500 to-red-700 text-white text-sm font-semibold px-6 py-2 rounded-full inline-block mb-6 shadow-lg shadow-red-300/40"
+            style={{ letterSpacing: 2 }}
+          >
+            GET ANSWERS
+          </motion.div>
+          
+          <motion.h1 
+            className="text-5xl md:text-6xl lg:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-red-600 via-red-400 to-red-800 mb-6 leading-tight drop-shadow-lg"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            style={{ fontFamily: 'Montserrat, sans-serif' }}
+          >
+            Frequently Asked Questions
+          </motion.h1>
+          
+          <motion.p
+            className="text-xl max-w-3xl mx-auto text-red-900/80"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            Find answers to common questions about blood donation, requests, and our services
+          </motion.p>
+        </motion.div>
         
         {/* Category Navigation */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="flex flex-wrap justify-center gap-4 mb-12"
+        >
           {Object.keys(faqCategories).map((category) => (
-            <button
+            <motion.button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 rounded-full transition-colors font-medium ${
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-6 py-3 rounded-full transition-all duration-300 font-semibold shadow-lg ${
                 activeCategory === category
-                  ? 'bg-[var(--accent)] text-white'
-                  : 'bg-[var(--bg-surface)] text-[var(--text-main)] hover:bg-red-50'
+                  ? 'bg-gradient-to-r from-red-500 to-red-700 text-white shadow-red-300/40'
+                  : 'bg-white/80 text-red-900/80 hover:bg-white shadow-red-200/30 backdrop-blur-sm'
               }`}
             >
               {faqCategories[category].title}
-            </button>
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
 
         {/* FAQ Items */}
-        <div className="space-y-4">
+        <motion.div 
+          className="space-y-4 relative"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
           {faqCategories[activeCategory].faqs.map((faq, index) => (
-            <ListItem
+            <motion.div
               key={index}
-              className={`border rounded-lg shadow-sm ${
-                faq.isCategory
-                  ? 'bg-red-50 border-red-200'
-                  : ''
-              }`}
-              style={{
-                background: faq.isCategory ? "var(--bg-surface)" : "var(--bg-main)",
-                borderColor: faq.isCategory
-                  ? "rgba(255,0,0,0.09)"
-                  : "rgba(200,200,200,0.13)",
-                color: "var(--text-main)"
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * index }}
             >
-              <button
-                className={`w-full p-4 text-left flex justify-between items-center ${
-                  faq.isCategory ? 'cursor-default' : ''
+              <ListItem
+                className={`${glass} rounded-xl overflow-hidden transition-all duration-300 ${
+                  faq.isCategory
+                    ? 'bg-gradient-to-r from-red-50/80 to-red-100/80 border-red-200/50'
+                    : 'hover:shadow-red-200/40 hover:scale-[1.02]'
                 }`}
-                onClick={() =>
-                  !faq.isCategory && setActiveIndex(activeIndex === index ? null : index)
-                }
+                style={{
+                  background: faq.isCategory 
+                    ? "linear-gradient(135deg, rgba(254,226,226,0.8), rgba(254,202,202,0.8))"
+                    : "linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.3))",
+                  borderColor: "rgba(254,226,226,0.4)",
+                  color: "var(--text-main)"
+                }}
               >
-                <span
-                  className={`font-medium ${
-                    faq.isCategory
-                      ? 'text-red-700 text-lg'
-                      : ''
+                <button
+                  className={`w-full p-4 text-left flex justify-between items-center ${
+                    faq.isCategory ? 'cursor-default' : ''
                   }`}
-                  style={{
-                    color: faq.isCategory
-                      ? "var(--accent)"
-                      : "var(--text-main)"
-                  }}
+                  onClick={() =>
+                    !faq.isCategory && setActiveIndex(activeIndex === index ? null : index)
+                  }
                 >
-                  {faq.question}
-                </span>
-                {!faq.isCategory &&
-                  (activeIndex === index ? <FiChevronUp /> : <FiChevronDown />)}
-              </button>
-              {!faq.isCategory && activeIndex === index && (
-                <div
-                  className="p-4 pt-0 border-t"
-                  style={{
-                    color: "var(--text-muted)",
-                    borderColor: "rgba(200,200,200,0.13)"
-                  }}
-                >
-                  {faq.answer}
-                </div>
-              )}
-            </ListItem>
+                  <span
+                    className={`font-medium ${
+                      faq.isCategory
+                        ? 'text-red-700 text-lg'
+                        : ''
+                    }`}
+                    style={{
+                      color: faq.isCategory
+                        ? "var(--accent)"
+                        : "var(--text-main)"
+                    }}
+                  >
+                    {faq.question}
+                  </span>
+                  {!faq.isCategory &&
+                    (activeIndex === index ? <FiChevronUp /> : <FiChevronDown />)}
+                </button>
+                {!faq.isCategory && activeIndex === index && (
+                  <div
+                    className="p-4 pt-0 border-t"
+                    style={{
+                      color: "var(--text-muted)",
+                      borderColor: "rgba(200,200,200,0.13)"
+                    }}
+                  >
+                    {faq.answer}
+                  </div>
+                )}
+              </ListItem>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <div
           className="mt-12 rounded-lg p-6 text-center"
