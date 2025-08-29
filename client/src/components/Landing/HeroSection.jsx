@@ -34,9 +34,13 @@ const HeroSection = ({ onVideoLoaded }) => {
           autoPlay
           loop
           muted
+          playsInline
           className="w-full h-full object-cover"
         >
-          <source src="/vid1.mp4" type="video/mp4" />
+          <source 
+            src="https://res.cloudinary.com/doiavhwbs/video/upload/q_auto,f_auto,c_scale,w_1920/v1756467059/vid1_djxilq.mp4" 
+            type="video/mp4"
+          />
         </video>
         <div className="absolute inset-0 bg-black/60" />
       </div>
